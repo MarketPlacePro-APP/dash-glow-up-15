@@ -7,9 +7,9 @@ import {
   CalendarDays,
   PhoneCall,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import tlwbLogo from "@/assets/tlwb-logo.png";
 
 const navItems = [
   { id: "executive", label: "Executive", icon: LayoutDashboard, badge: "Live" },
@@ -27,15 +27,14 @@ export const Sidebar = () => {
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-sidebar/60 backdrop-blur-xl">
       <div className="px-6 py-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center ring-glow">
-            <Sparkles className="h-4.5 w-4.5 text-primary-foreground" strokeWidth={2.5} />
-          </div>
-          <div>
-            <p className="text-[10px] font-semibold tracking-[0.2em] text-muted-foreground">TLWB</p>
-            <h1 className="text-sm font-bold leading-tight">KPI Dashboard</h1>
-          </div>
-        </div>
+        <img
+          src={tlwbLogo}
+          alt="Tax Lien Wealth Builders"
+          className="w-full h-auto object-contain"
+        />
+        <p className="mt-3 text-[10px] font-semibold tracking-[0.2em] text-muted-foreground">
+          KPI DASHBOARD
+        </p>
         <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
           Marketing, Preview, Workshop, Schedule, and Inside Sales — unified.
         </p>
