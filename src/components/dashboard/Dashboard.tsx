@@ -1,6 +1,6 @@
+import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
-import { ExecutiveOverview } from "./ExecutiveOverview";
 
 const Dashboard = () => {
   return (
@@ -9,7 +9,7 @@ const Dashboard = () => {
       <main className="flex-1 min-w-0 flex flex-col">
         <Topbar />
         <div className="flex-1 overflow-y-auto">
-          <ExecutiveOverview />
+          <Outlet />
         </div>
       </main>
     </div>
