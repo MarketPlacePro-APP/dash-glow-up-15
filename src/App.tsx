@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "./components/dashboard/Dashboard";
+import { DashboardDataProvider } from "./data/DashboardDataProvider";
 import Index from "./pages/Index.tsx";
 import Marketing from "./pages/Marketing.tsx";
 import Preview from "./pages/Preview.tsx";
@@ -20,6 +21,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <DashboardDataProvider>
       <BrowserRouter>
         <Routes>
           <Route element={<Dashboard />}>
@@ -35,6 +37,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      </DashboardDataProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
