@@ -1,5 +1,5 @@
-import Dashboard from "@/components/dashboard/Dashboard";
+import { ExecutiveOverview } from "@/components/dashboard/ExecutiveOverview";
 
-const Index = () => <Dashboard />;
+const Index = () => <ExecutiveOverview />;
 
 export default Index;
