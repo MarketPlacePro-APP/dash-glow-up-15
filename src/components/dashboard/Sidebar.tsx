@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   Megaphone,
@@ -12,18 +12,16 @@ import { cn } from "@/lib/utils";
 import tlwbLogo from "@/assets/tlwb-logo.png";
 
 const navItems = [
-  { id: "executive", label: "Executive", icon: LayoutDashboard, badge: "Live" },
-  { id: "marketing", label: "Marketing", icon: Megaphone },
-  { id: "preview", label: "Preview", icon: Eye },
-  { id: "workshop", label: "Workshop / ME", icon: GraduationCap },
-  { id: "schedule", label: "Schedule", icon: CalendarDays },
-  { id: "inside-sales", label: "Inside Sales", icon: PhoneCall },
-  { id: "data-qa", label: "Data QA", icon: ShieldCheck },
+  { to: "/", label: "Executive", icon: LayoutDashboard, badge: "Live", end: true },
+  { to: "/marketing", label: "Marketing", icon: Megaphone },
+  { to: "/preview", label: "Preview", icon: Eye },
+  { to: "/workshop", label: "Workshop / ME", icon: GraduationCap },
+  { to: "/schedule", label: "Schedule", icon: CalendarDays },
+  { to: "/inside-sales", label: "Inside Sales", icon: PhoneCall },
+  { to: "/data-qa", label: "Data QA", icon: ShieldCheck },
 ];
 
 export const Sidebar = () => {
-  const [active, setActive] = useState("executive");
-
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-sidebar/60 backdrop-blur-xl">
       <div className="px-6 py-6 border-b border-sidebar-border">
@@ -46,31 +44,39 @@ export const Sidebar = () => {
         </p>
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = active === item.id;
           return (
-            <button
-              key={item.id}
-              onClick={() => setActive(item.id)}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group",
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--sidebar-border))]"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-              )}
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) =>
+                cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group",
+                  isActive
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--sidebar-border))]"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                )
+              }
             >
-              <Icon
-                className={cn(
-                  "h-4 w-4 shrink-0 transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                )}
-              />
-              <span className="flex-1 text-left">{item.label}</span>
-              {item.badge && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-success/15 text-success font-semibold">
-                  {item.badge}
-                </span>
+              {({ isActive }) => (
+                <>
+                  <Icon
+                    className={cn(
+                      "h-4 w-4 shrink-0 transition-colors",
+                      isActive
+                        ? "text-primary"
+                        : "text-muted-foreground group-hover:text-foreground"
+                    )}
+                  />
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {item.badge && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-success/15 text-success font-semibold">
+                      {item.badge}
+                    </span>
+                  )}
+                </>
               )}
-            </button>
+            </NavLink>
           );
         })}
       </nav>

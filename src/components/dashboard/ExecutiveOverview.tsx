@@ -123,14 +123,6 @@ export const ExecutiveOverview = () => {
               Expo, active marketing, previews, Middle-End, schedule, and Inside Sales — all at a glance.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="h-10 px-4 rounded-lg border border-border bg-card hover:bg-muted/60 text-sm font-medium transition">
-              Open Marketing
-            </button>
-            <button className="h-10 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-semibold transition inline-flex items-center gap-2 ring-glow">
-              Quick actions <ArrowUpRight className="h-4 w-4" />
-            </button>
-          </div>
         </div>
       </section>
 
