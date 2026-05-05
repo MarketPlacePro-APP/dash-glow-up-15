@@ -19,12 +19,16 @@ const teamRows = (team: TeamPreviewHistoryRow["team"], filter: Filter) => {
   return rows;
 };
 
+const fmtMaybeNumber = (value: number | null) => value === null ? "N/A" : formatNumber(value);
+
 const totalRow = (rows: TeamPreviewHistoryRow[]) => {
   const reg = rows.reduce((acc, row) => acc + row.reg, 0);
   const attended = rows.reduce((acc, row) => acc + row.attended, 0);
+  const buyingUnitsKnown = rows.filter((row) => row.buyingUnits !== null);
+  const buyingUnits = buyingUnitsKnown.length ? buyingUnitsKnown.reduce((acc, row) => acc + (row.buyingUnits ?? 0), 0) : null;
   const sold = rows.reduce((acc, row) => acc + row.sold, 0);
   const workshop = rows.reduce((acc, row) => acc + (row.workshopAttendance ?? 0), 0);
-  return { reg, attended, sold, showRate: reg ? attended / reg : 0, salesRate: attended ? sold / attended : 0, workshop };
+  return { reg, attended, buyingUnits, sold, showRate: reg ? attended / reg : 0, salesRate: attended ? sold / attended : 0, workshop };
 };
 
 const Preview = () => {
@@ -107,8 +111,8 @@ const Preview = () => {
                 <table className="w-full text-sm min-w-[960px]">
                   <thead><tr className="text-[10px] uppercase tracking-wide text-muted-foreground"><th className="text-left font-semibold py-2">Market</th><th className="text-left font-semibold py-2">Date</th><th className="text-right font-semibold py-2">Reg</th><th className="text-right font-semibold py-2">Show-up</th><th className="text-right font-semibold py-2">Sales %</th><th className="text-right font-semibold py-2">Buying units</th><th className="text-right font-semibold py-2">Sold</th><th className="text-right font-semibold py-2">3-day WS attendance</th></tr></thead>
                   <tbody>
-                    {rows.map((row) => (<tr key={`${row.team}-${row.market}-${row.date}`} className="border-t border-border"><td className="py-3 font-semibold">{row.market}</td><td className="py-3 text-muted-foreground">{row.date}</td><td className="py-3 text-right">{formatNumber(row.reg)}</td><td className="py-3 text-right">{formatPercent(row.showRate)}</td><td className="py-3 text-right font-semibold text-success">{formatPercent(row.salesRate)}</td><td className="py-3 text-right">{formatNumber(row.buyingUnits)}</td><td className="py-3 text-right">{formatNumber(row.sold)}</td><td className="py-3 text-right">{row.workshopAttendance === null ? "—" : formatNumber(row.workshopAttendance)}</td></tr>))}
-                    <tr className="border-t-2 border-primary/30 bg-primary/5"><td className="py-3 font-bold">Total / weighted</td><td className="py-3 text-muted-foreground">{filter === "last6" ? "Last 6" : filter === "year" ? "1 year" : "All recent"}</td><td className="py-3 text-right font-bold">{formatNumber(total.reg)}</td><td className="py-3 text-right font-bold">{formatPercent(total.showRate)}</td><td className="py-3 text-right font-bold text-success">{formatPercent(total.salesRate)}</td><td className="py-3 text-right font-bold">{formatNumber(total.sold)}</td><td className="py-3 text-right font-bold">{formatNumber(total.sold)}</td><td className="py-3 text-right font-bold">{total.workshop ? formatNumber(total.workshop) : "—"}</td></tr>
+                    {rows.map((row) => (<tr key={`${row.team}-${row.market}-${row.date}`} className="border-t border-border"><td className="py-3 font-semibold">{row.market}</td><td className="py-3 text-muted-foreground">{row.date}</td><td className="py-3 text-right">{formatNumber(row.reg)}</td><td className="py-3 text-right">{formatPercent(row.showRate)}</td><td className="py-3 text-right font-semibold text-success">{formatPercent(row.salesRate)}</td><td className="py-3 text-right">{fmtMaybeNumber(row.buyingUnits)}</td><td className="py-3 text-right">{formatNumber(row.sold)}</td><td className="py-3 text-right">{row.workshopAttendance === null ? "—" : formatNumber(row.workshopAttendance)}</td></tr>))}
+                    <tr className="border-t-2 border-primary/30 bg-primary/5"><td className="py-3 font-bold">Total / weighted</td><td className="py-3 text-muted-foreground">{filter === "last6" ? "Last 6" : filter === "year" ? "1 year" : "All recent"}</td><td className="py-3 text-right font-bold">{formatNumber(total.reg)}</td><td className="py-3 text-right font-bold">{formatPercent(total.showRate)}</td><td className="py-3 text-right font-bold text-success">{formatPercent(total.salesRate)}</td><td className="py-3 text-right font-bold">{fmtMaybeNumber(total.buyingUnits)}</td><td className="py-3 text-right font-bold">{formatNumber(total.sold)}</td><td className="py-3 text-right font-bold">{total.workshop ? formatNumber(total.workshop) : "—"}</td></tr>
                   </tbody>
                 </table>
               </div>

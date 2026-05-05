@@ -11,8 +11,8 @@ import {
 import { cn } from "@/lib/utils";
 import tlwbLogo from "@/assets/tlwb-logo.png";
 
-const navItems = [
-  { to: "/", label: "Executive", icon: LayoutDashboard, badge: "Live", end: true },
+export const navItems = [
+  { to: "/", label: "Executive", icon: LayoutDashboard, end: true },
   { to: "/marketing", label: "Marketing", icon: Megaphone },
   { to: "/preview", label: "Preview", icon: Eye },
   { to: "/workshop", label: "Workshop / ME", icon: GraduationCap },
@@ -34,7 +34,7 @@ export const Sidebar = () => {
           KPI DASHBOARD
         </p>
         <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
-          Marketing, Preview, Workshop, Schedule, and Inside Sales — unified.
+          Review snapshot with source freshness visible in Data QA.
         </p>
       </div>
 
@@ -84,10 +84,10 @@ export const Sidebar = () => {
       <div className="m-3 p-4 rounded-xl glass border border-border">
         <div className="flex items-center gap-2 mb-2">
           <span className="h-2 w-2 rounded-full bg-success animate-pulse-soft" />
-          <p className="text-xs font-semibold">Operating view</p>
+          <p className="text-xs font-semibold">Review snapshot</p>
         </div>
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          Reporting window live. Source freshness visible in Data QA.
+          Not production. Source freshness and pending fields are visible in Data QA.
         </p>
       </div>
     </aside>

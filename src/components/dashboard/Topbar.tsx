@@ -1,13 +1,15 @@
 import { Calendar, ChevronDown } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import { navItems } from "./Sidebar";
+import { cn } from "@/lib/utils";
 
 const titles: Record<string, { eyebrow: string; title: string }> = {
   "/": { eyebrow: "EXECUTIVE OVERVIEW", title: "TLWB KPI Dashboard" },
-  "/marketing": { eyebrow: "MARKETING", title: "Active Markets & Spend" },
-  "/preview": { eyebrow: "PREVIEW", title: "Preview Conversion" },
-  "/workshop": { eyebrow: "WORKSHOP / MIDDLE-END", title: "Show & Sold Performance" },
-  "/schedule": { eyebrow: "SCHEDULE", title: "Upcoming Events" },
-  "/inside-sales": { eyebrow: "INSIDE SALES", title: "Team Performance" },
+  "/marketing": { eyebrow: "MARKETING", title: "Active Marketing" },
+  "/preview": { eyebrow: "PREVIEW", title: "Active Preview" },
+  "/workshop": { eyebrow: "WORKSHOP / MIDDLE-END", title: "Workshop & ME" },
+  "/schedule": { eyebrow: "SCHEDULE", title: "Schedule Calendar" },
+  "/inside-sales": { eyebrow: "INSIDE SALES", title: "Inside Sales DPL" },
   "/data-qa": { eyebrow: "DATA QA", title: "Source Freshness & Health" },
 };
 
@@ -27,11 +29,26 @@ export const Topbar = () => {
         <div className="ml-auto flex items-center gap-2">
           <button className="hidden sm:inline-flex items-center gap-2 h-10 px-3.5 rounded-lg border border-border bg-card hover:bg-muted/60 text-sm font-medium transition">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>This week</span>
+            <span>Snapshot</span>
             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
           </button>
         </div>
       </div>
+      <nav className="lg:hidden border-t border-border px-3 py-2 overflow-x-auto flex gap-2">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) => cn(
+              "shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition",
+              isActive ? "border-primary/40 bg-primary/15 text-primary" : "border-border bg-card/70 text-muted-foreground"
+            )}
+          >
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
     </header>
   );
 };

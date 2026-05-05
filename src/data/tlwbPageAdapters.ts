@@ -24,7 +24,7 @@ export type TeamPreviewHistoryRow = {
   attended: number;
   showRate: number;
   salesRate: number;
-  buyingUnits: number;
+  buyingUnits: number | null;
   sold: number;
   workshopAttendance: number | null;
 };
@@ -94,7 +94,7 @@ export const marketingHistory: Record<string, MarketingHistoryRun[]> = {
     { market: 'Tampa', eventDate: 'source pending', registrations: null, spend: null, cpr: null, notes: 'Need prior tracker/export for third comparable run.' },
   ],
   'West Palm Beach': [
-    { market: 'West Palm Beach', eventDate: '2026-05-16–20', registrations: 4647, spend: null, cpr: null, notes: 'Future/current schedule rollup; final marketing spend source pending.' },
+    { market: 'West Palm Beach', eventDate: 'source pending', registrations: null, spend: null, cpr: null, notes: 'Need prior tracker/export for a completed comparable run; current May run is active, not history.' },
     { market: 'West Palm Beach', eventDate: '2025-11-08–12', registrations: null, spend: null, cpr: null, notes: 'Historical run located in session source; marketing spend source pending.' },
     { market: 'West Palm Beach', eventDate: 'source pending', registrations: null, spend: null, cpr: null, notes: 'Need prior tracker/export for third comparable run.' },
   ],
@@ -116,33 +116,33 @@ export const previewSessions: PreviewSessionRow[] = [
 ];
 
 export const teamPreviewHistory: TeamPreviewHistoryRow[] = [
-  { team: 'Team Dent', market: 'Richmond', date: '2026-04-28', reg: 1532, attended: 173, showRate: 0.1129, salesRate: 0.289, buyingUnits: 50, sold: 50, workshopAttendance: 49 },
-  { team: 'Team Dent', market: 'Denver', date: '2026-04-01', reg: 733, attended: 77, showRate: 0.105, salesRate: 0.312, buyingUnits: 24, sold: 24, workshopAttendance: 21 },
-  { team: 'Team Dent', market: 'Orange County', date: '2026-02-24', reg: 1132, attended: 166, showRate: 0.1466, salesRate: 0.283, buyingUnits: 47, sold: 47, workshopAttendance: null },
-  { team: 'Team Dent', market: 'Atlanta', date: '2026-01-21', reg: 1677, attended: 236, showRate: 0.1407, salesRate: 0.258, buyingUnits: 61, sold: 61, workshopAttendance: null },
-  { team: 'Team Dent', market: 'Charleston', date: '2026-01-13', reg: 1397, attended: 203, showRate: 0.1453, salesRate: 0.296, buyingUnits: 60, sold: 60, workshopAttendance: null },
-  { team: 'Team Dent', market: 'Phoenix', date: '2025-11-05', reg: 1232, attended: 176, showRate: 0.1356, salesRate: 0.275, buyingUnits: 46, sold: 46, workshopAttendance: null },
+  { team: 'Team Dent', market: 'Richmond', date: '2026-04-28', reg: 1532, attended: 173, showRate: 0.1129, salesRate: 0.289, buyingUnits: null, sold: 50, workshopAttendance: 49 },
+  { team: 'Team Dent', market: 'Denver', date: '2026-04-01', reg: 733, attended: 77, showRate: 0.105, salesRate: 0.312, buyingUnits: null, sold: 24, workshopAttendance: 21 },
+  { team: 'Team Dent', market: 'Orange County', date: '2026-02-24', reg: 1132, attended: 166, showRate: 0.1466, salesRate: 0.283, buyingUnits: null, sold: 47, workshopAttendance: null },
+  { team: 'Team Dent', market: 'Atlanta', date: '2026-01-21', reg: 1677, attended: 236, showRate: 0.1407, salesRate: 0.258, buyingUnits: null, sold: 61, workshopAttendance: null },
+  { team: 'Team Dent', market: 'Charleston', date: '2026-01-13', reg: 1397, attended: 203, showRate: 0.1453, salesRate: 0.296, buyingUnits: null, sold: 60, workshopAttendance: null },
+  { team: 'Team Dent', market: 'Phoenix', date: '2025-11-05', reg: 1232, attended: 176, showRate: 0.1356, salesRate: 0.275, buyingUnits: null, sold: 46, workshopAttendance: null },
 
-  { team: 'Team Vogel', market: 'Los Angeles', date: '2026-04-22', reg: 1624, attended: 171, showRate: 0.1053, salesRate: 0.409, buyingUnits: 70, sold: 70, workshopAttendance: null },
-  { team: 'Team Vogel', market: 'Phoenix', date: '2026-04-15', reg: 968, attended: 82, showRate: 0.0847, salesRate: 0.378, buyingUnits: 31, sold: 31, workshopAttendance: null },
-  { team: 'Team Vogel', market: 'Tucson', date: '2026-04-11', reg: 620, attended: 85, showRate: 0.1371, salesRate: 0.341, buyingUnits: 29, sold: 29, workshopAttendance: null },
-  { team: 'Team Vogel', market: 'Indianapolis', date: '2026-04-01', reg: 1029, attended: 112, showRate: 0.1088, salesRate: 0.446, buyingUnits: 50, sold: 50, workshopAttendance: null },
-  { team: 'Team Vogel', market: 'DC', date: '2026-03-11', reg: 1142, attended: 107, showRate: 0.0937, salesRate: 0.533, buyingUnits: 57, sold: 57, workshopAttendance: null },
-  { team: 'Team Vogel', market: 'Hartford', date: '2026-03-04', reg: 1363, attended: 201, showRate: 0.1475, salesRate: 0.393, buyingUnits: 79, sold: 79, workshopAttendance: 76 },
+  { team: 'Team Vogel', market: 'Los Angeles', date: '2026-04-22', reg: 1624, attended: 171, showRate: 0.1053, salesRate: 0.409, buyingUnits: null, sold: 70, workshopAttendance: null },
+  { team: 'Team Vogel', market: 'Phoenix', date: '2026-04-15', reg: 968, attended: 82, showRate: 0.0847, salesRate: 0.378, buyingUnits: null, sold: 31, workshopAttendance: null },
+  { team: 'Team Vogel', market: 'Tucson', date: '2026-04-11', reg: 620, attended: 85, showRate: 0.1371, salesRate: 0.341, buyingUnits: null, sold: 29, workshopAttendance: null },
+  { team: 'Team Vogel', market: 'Indianapolis', date: '2026-04-01', reg: 1029, attended: 112, showRate: 0.1088, salesRate: 0.446, buyingUnits: null, sold: 50, workshopAttendance: null },
+  { team: 'Team Vogel', market: 'DC', date: '2026-03-11', reg: 1142, attended: 107, showRate: 0.0937, salesRate: 0.533, buyingUnits: null, sold: 57, workshopAttendance: null },
+  { team: 'Team Vogel', market: 'Hartford', date: '2026-03-04', reg: 1363, attended: 201, showRate: 0.1475, salesRate: 0.393, buyingUnits: null, sold: 79, workshopAttendance: 76 },
 
-  { team: 'Team Wayne', market: 'Chicago', date: '2026-04-29', reg: 1583, attended: 216, showRate: 0.1364, salesRate: 0.315, buyingUnits: 67, sold: 67, workshopAttendance: null },
-  { team: 'Team Wayne', market: 'Long Island', date: '2026-04-22', reg: 1832, attended: 204, showRate: 0.1114, salesRate: 0.387, buyingUnits: 79, sold: 79, workshopAttendance: 76 },
-  { team: 'Team Wayne', market: 'Los Angeles', date: '2026-04-15', reg: 1922, attended: 233, showRate: 0.1212, salesRate: 0.395, buyingUnits: 92, sold: 92, workshopAttendance: null },
-  { team: 'Team Wayne', market: 'Philadelphia', date: '2026-04-01', reg: 1549, attended: 156, showRate: 0.1007, salesRate: 0.423, buyingUnits: 64, sold: 64, workshopAttendance: null },
-  { team: 'Team Wayne', market: 'Boston', date: '2026-03-25', reg: 947, attended: 113, showRate: 0.1193, salesRate: 0.496, buyingUnits: 56, sold: 56, workshopAttendance: null },
-  { team: 'Team Wayne', market: 'Dallas', date: '2026-03-11', reg: 1177, attended: 162, showRate: 0.1376, salesRate: 0.34, buyingUnits: 55, sold: 55, workshopAttendance: null },
+  { team: 'Team Wayne', market: 'Chicago', date: '2026-04-29', reg: 1583, attended: 216, showRate: 0.1364, salesRate: 0.315, buyingUnits: null, sold: 67, workshopAttendance: null },
+  { team: 'Team Wayne', market: 'Long Island', date: '2026-04-22', reg: 1832, attended: 204, showRate: 0.1114, salesRate: 0.387, buyingUnits: null, sold: 79, workshopAttendance: 76 },
+  { team: 'Team Wayne', market: 'Los Angeles', date: '2026-04-15', reg: 1922, attended: 233, showRate: 0.1212, salesRate: 0.395, buyingUnits: null, sold: 92, workshopAttendance: null },
+  { team: 'Team Wayne', market: 'Philadelphia', date: '2026-04-01', reg: 1549, attended: 156, showRate: 0.1007, salesRate: 0.423, buyingUnits: null, sold: 64, workshopAttendance: null },
+  { team: 'Team Wayne', market: 'Boston', date: '2026-03-25', reg: 947, attended: 113, showRate: 0.1193, salesRate: 0.496, buyingUnits: null, sold: 56, workshopAttendance: null },
+  { team: 'Team Wayne', market: 'Dallas', date: '2026-03-11', reg: 1177, attended: 162, showRate: 0.1376, salesRate: 0.34, buyingUnits: null, sold: 55, workshopAttendance: null },
 
-  { team: 'Team Wyman', market: 'Orlando', date: '2026-03-24', reg: 1081, attended: 141, showRate: 0.1304, salesRate: 0.404, buyingUnits: 57, sold: 57, workshopAttendance: null },
-  { team: 'Team Wyman', market: 'Memphis', date: '2026-03-10', reg: 1661, attended: 297, showRate: 0.1788, salesRate: 0.226, buyingUnits: 67, sold: 67, workshopAttendance: 67 },
-  { team: 'Team Wyman', market: 'Jacksonville', date: '2026-03-03', reg: 940, attended: 132, showRate: 0.1404, salesRate: 0.265, buyingUnits: 33, sold: 33, workshopAttendance: null },
-  { team: 'Team Wyman', market: 'San Diego', date: '2026-02-17', reg: 874, attended: 111, showRate: 0.127, salesRate: 0.306, buyingUnits: 32, sold: 32, workshopAttendance: null },
-  { team: 'Team Wyman', market: 'Las Vegas', date: '2026-02-11', reg: 1397, attended: 206, showRate: 0.1475, salesRate: 0.301, buyingUnits: 62, sold: 62, workshopAttendance: null },
-  { team: 'Team Wyman', market: 'Greenville', date: '2026-01-28', reg: 405, attended: 60, showRate: 0.1481, salesRate: 0.333, buyingUnits: 20, sold: 20, workshopAttendance: 17 },
+  { team: 'Team Wyman', market: 'Orlando', date: '2026-03-24', reg: 1081, attended: 141, showRate: 0.1304, salesRate: 0.404, buyingUnits: null, sold: 57, workshopAttendance: null },
+  { team: 'Team Wyman', market: 'Memphis', date: '2026-03-10', reg: 1661, attended: 297, showRate: 0.1788, salesRate: 0.226, buyingUnits: null, sold: 67, workshopAttendance: 67 },
+  { team: 'Team Wyman', market: 'Jacksonville', date: '2026-03-03', reg: 940, attended: 132, showRate: 0.1404, salesRate: 0.265, buyingUnits: null, sold: 33, workshopAttendance: null },
+  { team: 'Team Wyman', market: 'San Diego', date: '2026-02-17', reg: 874, attended: 111, showRate: 0.127, salesRate: 0.306, buyingUnits: null, sold: 32, workshopAttendance: null },
+  { team: 'Team Wyman', market: 'Las Vegas', date: '2026-02-11', reg: 1397, attended: 206, showRate: 0.1475, salesRate: 0.301, buyingUnits: null, sold: 62, workshopAttendance: null },
+  { team: 'Team Wyman', market: 'Greenville', date: '2026-01-28', reg: 405, attended: 60, showRate: 0.1481, salesRate: 0.333, buyingUnits: null, sold: 20, workshopAttendance: 17 },
 ];
 
 export const currentMiddleEndWorkshops: MiddleEndCurrentWorkshop[] = [
