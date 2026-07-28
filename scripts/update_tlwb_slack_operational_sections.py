@@ -1012,11 +1012,25 @@ def parse_preview(messages: list[SlackMessage], schedule_records: list[dict] | N
 
 
 def market_from_me(body: str) -> str | None:
+    # Workflow-bot Event Stats finals normally put the market in a delimited
+    # ``Market: ... |`` field. Some teams prefix that field with a compact date
+    # range and suffix it with the ME team (for example
+    # ``7.24-26.26 Long Island ME Tony``), which the older letters-only regex
+    # rejected even though the rest of the final was valid.
+    market_field = re.search(r"\bMarket:\s*(.*?)(?=\s*\||$)", body, re.I)
+    if market_field:
+        market = re.sub(r"[*_`]", "", market_field.group(1))
+        market = re.sub(r"\s+", " ", market).strip(" ,")
+        market = re.sub(r"^\d[\d./-]*\s+", "", market)
+        market = re.sub(r"\s+ME(?:\s+(?:Tony|Shaw|Drecksel|Drexel|Nick))?\s*$", "", market, flags=re.I)
+        market = market.strip(" ,")
+        if market and re.search(r"[A-Za-z]", market):
+            return market
+
     patterns = [
         r"UPDATED #'?s[:!]?\s*\|\s*([A-Za-z][A-Za-z .,/-]+?)\s*\|",
         r"([A-Za-z][A-Za-z .,/-]+?)\s+Workshop",
         r"([A-Za-z0-9][A-Za-z0-9# .,/-]+?)\s+Middle End Event",
-        r"Market:\s*([A-Za-z][A-Za-z .,/-]+)",
         r"^\s*([A-Za-z][A-Za-z .,/-]+?)\s*\|",
     ]
     for pattern in patterns:
@@ -1054,7 +1068,7 @@ def parse_me_abc(body: str) -> str | None:
         if not grade_match:
             continue
         value = grade_match.group(1).strip(" |")
-        ratio_match = re.fullmatch(r"(\d+)\s*/\s*(\d+)\s*=\s*(\d+(?:\.\d+)?)\s*%", value)
+        ratio_match = re.fullmatch(r"(\d+)\s*/\s*(\d+)\s*(?:=\s*)?(\d+(?:\.\d+)?)\s*%", value)
         if ratio_match:
             left, right, percent = ratio_match.groups()
             left_count, right_count = int(left), int(right)
