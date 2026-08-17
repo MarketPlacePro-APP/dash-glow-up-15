@@ -12,7 +12,7 @@ import html
 import json
 import re
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 
@@ -21,6 +21,7 @@ PREVIEW_CHANNELS = {
     "teamdent": "Team Dent",
     "teamwyman": "Team Wyman",
     "teamvogel": "Team Vogel",
+    "teammillar": "Team Millar",
 }
 
 ME_CHANNELS = {
@@ -169,8 +170,14 @@ def schedule_total_for_market(schedule_records: list[dict], market: str, route_s
         return 0
     end = start + timedelta(days=7)
     total = 0
+    market_key = normalize_market_name(market)
     for row in schedule_records:
-        if str(row.get("market", "")).lower() != market.lower():
+        # Slack headings commonly carry a state suffix (for example
+        # ``Indianapolis, IN`` / ``Indianapolis, IND``) while the schedule
+        # route is stored as ``Indianapolis``. Compare canonical market keys so
+        # the denominator comes from the schedule instead of collapsing to the
+        # number of sessions seen so far.
+        if normalize_market_name(str(row.get("market", ""))) != market_key:
             continue
         if row.get("eventType") != "front_end_preview":
             continue
@@ -214,7 +221,7 @@ def ts_literal(value: str) -> str:
     return value.replace("\\", "\\\\").replace("'", "\\'")
 
 
-def numeric_literal(value: int | str | None) -> str:
+def numeric_literal(value: int | float | str | None) -> str:
     return "null" if value is None else str(value)
 
 
@@ -284,6 +291,7 @@ def parse_marketing(messages: list[SlackMessage]) -> tuple[list[str], str]:
             msg.posted_at,
             "  {\n"
             f"    market: '{ts_literal(market)}',\n"
+            f"    startDate: '{start_date}',\n"
             f"    starts: '{ts_literal(starts)}',\n"
             "    channels: [\n"
             + ",\n".join(channels)
@@ -396,6 +404,7 @@ def parse_upcoming_pipeline(messages: list[SlackMessage], src: Path) -> list[str
             posted = datetime.fromisoformat(str(confirmation["posted_at"])).date()
             if not (start - timedelta(days=10) <= posted <= end + timedelta(days=1)):
                 confirmation = None
+        floor_count = me_floor_count_source(messages, channel, start, end) if start <= today <= end + timedelta(days=1) else None
 
         preview_final = preview_finals.get(market_key)
         if preview_final:
@@ -416,12 +425,26 @@ def parse_upcoming_pipeline(messages: list[SlackMessage], src: Path) -> list[str
         preceding.sort(reverse=True)
 
         preview_sold = int(confirmation["sold"]) if confirmation and int(confirmation.get("sold") or 0) else int(preview_final["sold"]) if preview_final else None
-        projected = int(confirmation["confirmed"]) if confirmation and int(confirmation.get("confirmed") or 0) else None
+        projected = int(floor_count["count"]) if floor_count else int(confirmation["confirmed"]) if confirmation and int(confirmation.get("confirmed") or 0) else None
         preview_team = str(preview_final["team"]) if preview_final else (preceding[0][1] if preceding else "Pending preview source")
         if preview_final:
             preview_team = f"{preview_team} / #{preview_final['channel']}"
-        source_posted_at = str(confirmation["posted_at"]) if confirmation else str(route.get("fetchedAt") or generated_raw)
-        if confirmation:
+        source_posted_at = str(floor_count["posted_at"]) if floor_count else str(confirmation["posted_at"]) if confirmation else str(route.get("fetchedAt") or generated_raw)
+        if floor_count:
+            guests = int(floor_count.get("guests") or 0)
+            preview_context = f"{preview_sold} preview sold; " if preview_sold is not None else "Preview sold pending; "
+            discrepancy = (
+                f"A later roster check reports {int(floor_count['roster_count'])} students; reconciliation is pending. "
+                if floor_count.get("roster_count") is not None
+                else ""
+            )
+            source_note = (
+                f"Workshop Team Scheduling plus #{channel} current floor count at {floor_count['posted_at']}: "
+                f"{preview_context}{projected} BU on site"
+                + (f" and {guests} guests" if guests else "")
+                + f". {discrepancy}ME sold remains pending until the final Event Stats post lands."
+            )
+        elif confirmation:
             source_note = (
                 f"Workshop Team Scheduling plus #{confirmation['channel']} update: "
                 f"{preview_sold} preview sold and {projected} currently confirmed BU. "
@@ -490,6 +513,10 @@ def parse_expo(messages: list[SlackMessage]) -> tuple[dict[str, int | str | None
 
 def market_from_preview(body: str) -> str | None:
     patterns = [
+        # Raw Slack finals may flatten the title to
+        # ``Raleigh, NC Team Wayne WK 30 FINAL NUMBERS`` with no pipe before
+        # the team/week label. Capture only the leading market segment.
+        r"^([A-Za-z][A-Za-z .,/\'-]+?)\s+Team\s+[A-Za-z]+\s+WK\s+\d+\s+FINAL\s+NUMBERS\b",
         r"([A-Za-z][A-Za-z .,/'-]+?)\s+Final Numbers",
         # Combined result/final posts sometimes render the final heading as
         # ``FINAL ROUTE NUMBERS … FINAL NUMBERS Tulsa, OK| Preview`` instead
@@ -536,6 +563,15 @@ def normalize_market_name(value: str) -> str:
     market = value.lower()
     market = market.replace("wpb", "west palm beach")
     market = market.replace("fort meyers", "fort myers")
+    # Slack finals sometimes spell out the trailing state while Preview and
+    # schedule sources use the abbreviation (for example, ``Tulsa Oklahoma``
+    # versus ``Tulsa, OK``). Remove only a *trailing* full state name so city
+    # names such as ``Oklahoma City`` remain intact.
+    market = re.sub(
+        r"(?:,\s*|\s+)(alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new hampshire|new jersey|new mexico|new york|north carolina|north dakota|ohio|oklahoma|oregon|pennsylvania|rhode island|south carolina|south dakota|tennessee|texas|utah|vermont|virginia|washington|west virginia|wisconsin|wyoming)\s*$",
+        "",
+        market,
+    )
     market = re.sub(
         r"\b(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|id|il|in|ia|ks|ky|la|me|md|ma|mi|mn|ms|mo|mt|ne|nv|nh|nj|nm|ny|nc|nd|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|vt|va|wa|wv|wi|wy|dc|ind)\b",
         "",
@@ -591,11 +627,71 @@ def me_confirmation_sources(messages: list[SlackMessage]) -> dict[tuple[str, str
     return sources
 
 
+def me_floor_count_source(
+    messages: list[SlackMessage],
+    channel: str,
+    start: date,
+    end: date,
+) -> dict[str, int | str] | None:
+    """Return the latest explicit on-floor BU count for one active workshop.
+
+    Active workshop channels often stop repeating the market name once check-in
+    begins. Bind concise floor-count posts to the scheduled team/channel and
+    route window instead of leaving the pre-event confirmation frozen in place.
+    """
+    floor: dict[str, int | str] | None = None
+    roster: dict[str, int | str] | None = None
+    for msg in messages:
+        if msg.channel != channel:
+            continue
+        posted = datetime.fromisoformat(msg.posted_at).date()
+        if not (start <= posted <= end + timedelta(days=1)):
+            continue
+        count_match = re.search(r"\bBU[’']?s?\s*=\s*([0-9][0-9,]*)\b", msg.body, re.I)
+        if not count_match:
+            count_match = re.search(r"\b([0-9][0-9,]*)\s+BU(?:[’']?s)?\b", msg.body, re.I)
+        guest_match = re.search(r"\bGuests?\s*=\s*([0-9][0-9,]*)\b", msg.body, re.I)
+        if not guest_match:
+            guest_match = re.search(r"\b([0-9][0-9,]*)\s+Guests?\b", msg.body, re.I)
+        if count_match and (floor is None or str(floor["posted_at"]) < msg.posted_at):
+            floor = {
+                "count": clean_int(count_match.group(1)) or 0,
+                "guests": (clean_int(guest_match.group(1)) or 0) if guest_match else 0,
+                "posted_at": msg.posted_at,
+            }
+        roster_match = re.search(r"\bcounting\s+([0-9][0-9,]*)\s+students?\b.*\broster\b", msg.body, re.I)
+        if roster_match and (roster is None or str(roster["posted_at"]) < msg.posted_at):
+            roster = {"count": clean_int(roster_match.group(1)) or 0, "posted_at": msg.posted_at}
+    if floor and roster and str(roster["posted_at"]) > str(floor["posted_at"]) and int(roster["count"]) != int(floor["count"]):
+        floor["roster_count"] = int(roster["count"])
+        floor["roster_posted_at"] = str(roster["posted_at"])
+    return floor
+
+
 def active_preview_market_display(value: str) -> str:
     market = re.sub(r"\s+", " ", value).strip(" ,")
     market = re.sub(r",\s*(AL|FL|TX|NC|SC|OH|MA|AZ|WA)\b\.?", "", market, flags=re.I)
     market = re.sub(r"\b(Previews?|Preview)\b$", "", market, flags=re.I).strip(" ,")
     return market.replace("Meyers", "Myers")
+
+
+def is_preview_final(body: str) -> bool:
+    """Return True for any supported preview final-report heading, case-insensitively."""
+    return bool(re.search(r"\b(?:FINAL\s+ROUTE\s+NUMBERS|FINAL\s+NUMBERS|MARKET\s+REPORT)\b", body, re.I))
+
+
+def preview_final_futures(body: str) -> int:
+    """Return the Futures count from the final report, not the live session.
+
+    Combined Slack posts can contain ``Session Futures`` before the final-route
+    block. Slice from the last final marker so Master Class sold can remain
+    distinct from total route deals including futures.
+    """
+    lowered = body.lower()
+    positions = [lowered.rfind(marker) for marker in ("final route numbers", "final numbers", "market report")]
+    start = max(positions)
+    final_body = body[start:] if start >= 0 else body
+    return number_after(final_body, ("Futures",)) or 0
 
 
 def preview_sold_sources(messages: list[SlackMessage]) -> dict[str, dict[str, int | str]]:
@@ -604,11 +700,7 @@ def preview_sold_sources(messages: list[SlackMessage]) -> dict[str, dict[str, in
         if msg.channel not in PREVIEW_CHANNELS:
             continue
         body = msg.body
-        if not (
-            "FINAL ROUTE NUMBERS" in body
-            or "MARKET REPORT" in body
-            or "Final Numbers" in body
-        ):
+        if not is_preview_final(body):
             continue
         market = market_from_preview(body)
         deals = number_after(body, ("Total Deals",))
@@ -635,6 +727,33 @@ def session_key(body: str) -> tuple[int, int] | None:
     return int(match.group(1)), int(match.group(2))
 
 
+def preview_session_speaker(
+    channel: str,
+    market_key: str,
+    date_value: str,
+    day: int,
+    session: int,
+    reported_speaker: str | None,
+) -> tuple[str, str]:
+    """Return the speaker who delivered a preview session.
+
+    Slack's ``Master Class: (Name)`` value is cumulative and can retain the
+    earlier speaker after the floor speaker changes. Troy confirmed that Lura
+    delivered Team Millar's final two Chicago sessions on 2026-07-29, even
+    though both cumulative Master Class lines remained labeled Jay.
+    """
+    if (
+        channel == "teammillar"
+        and market_key == "chicago"
+        and date_value == "2026-07-29"
+        and day == 5
+        and session in {1, 2}
+    ):
+        return "Lura", "Troy-confirmed floor-speaker correction for Team Millar's final two Chicago sessions"
+    speaker = (reported_speaker or "").strip()
+    return speaker, "Slack Master Class label" if speaker else "team-name fallback"
+
+
 def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: list[dict] | None = None) -> tuple[list[str], list[str], str, str]:
     schedule_records = schedule_records or []
     sessions: dict[tuple[str, str, str, int, int], dict[str, int | str | float]] = {}
@@ -646,7 +765,7 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
     for msg in messages:
         if msg.channel not in PREVIEW_CHANNELS:
             continue
-        if not ("FINAL ROUTE NUMBERS" in msg.body or "Final Numbers" in msg.body or "MARKET REPORT" in msg.body):
+        if not is_preview_final(msg.body):
             continue
         final_market = market_from_preview(msg.body)
         if not final_market:
@@ -665,7 +784,7 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
         if msg.channel not in PREVIEW_CHANNELS:
             continue
         body = msg.body
-        if "FINAL ROUTE NUMBERS" in body or "Final Numbers" in body or "MARKET REPORT" in body:
+        if is_preview_final(body):
             continue
         key = session_key(body)
         market = market_from_preview(body)
@@ -704,6 +823,10 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
             ]
             if candidates:
                 row = max(candidates, key=lambda candidate: str(candidate["posted_at"]))
+                # A late headcount may have been posted with the previous
+                # session's label. Once the following result arrives, bind the
+                # pending row to the result's actual day/session key.
+                row["day"], row["session"] = key
         if row is None:
             row = sessions.setdefault((msg.channel, market_key, date, key[0], key[1]), {
                 "channel": msg.channel,
@@ -720,29 +843,86 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
                 # explicitly so an in-progress session does not dilute the latest
                 # Slack-posted route conversion denominator.
                 "result_received": 0,
+                "result_posted_at": "",
                 "route_sales_pct": 0.0,
                 "master_class_sales": -1,
                 "master_class_speaker": "",
+                "speaker_attribution_source": "",
                 "total_futures": 0,
             })
-        row["posted_at"] = max(str(row["posted_at"]), msg.posted_at)
-        row["date"] = max(str(row["date"]), date)
+        # Once a result has closed a session, do not let a later same-key
+        # headcount post rewrite its denominator. Teams occasionally copy the
+        # prior session label onto the next session's headcount (Grand Rapids
+        # Day 1 on 2026-08-01 exposed this), which otherwise creates a false
+        # route-conversion mismatch and blocks every downstream refresh.
+        #
+        # A closed row that still has no headcount is the opposite case: the
+        # team posted the result before the headcount for the same session
+        # (Little Rock Day 1 Session 2 on 2026-08-15 posted them 61 seconds
+        # apart, result first). That headcount belongs to this row, so filling
+        # it in is correct. Splitting it off would strand the session's deals
+        # in a registered==0 row that the active-session filter drops, which
+        # under-counts route deals and trips the fail-closed reconciliation.
+        completed_session_locked = bool(
+            reg is not None
+            and int(row.get("registered") or 0) > 0
+            and row.get("result_received")
+            and row.get("result_posted_at")
+            and msg.posted_at > str(row["result_posted_at"])
+        )
+        if completed_session_locked:
+            # Preserve the completed row and hold this late headcount as a
+            # pending session. The next result post is matched by chronology
+            # and supplies the correct day/session label.
+            row = {
+                "channel": msg.channel,
+                "market": market,
+                "market_key": market_key,
+                "day": key[0],
+                "session": key[1],
+                "date": date,
+                "posted_at": msg.posted_at,
+                "registered": 0,
+                "attendance": 0,
+                "sales": 0,
+                "result_received": 0,
+                "result_posted_at": "",
+                "route_sales_pct": 0.0,
+                "master_class_sales": -1,
+                "master_class_speaker": "",
+                "speaker_attribution_source": "",
+                "total_futures": 0,
+            }
+            sessions[(msg.channel, market_key, date, key[0], key[1] + 1000)] = row
+            completed_session_locked = False
+        if not completed_session_locked:
+            row["posted_at"] = max(str(row["posted_at"]), msg.posted_at)
+            row["date"] = max(str(row["date"]), date)
         route_sales_match = re.search(r"Total\s+Route\s+Conversion\s*:\s*([0-9]+(?:\.[0-9]+)?)%", body, re.I)
         master_class_sales = cumulative_master_class(body)
-        speaker_name = master_class_speaker(body)
+        speaker_name, speaker_attribution_source = preview_session_speaker(
+            msg.channel,
+            market_key,
+            date,
+            key[0],
+            key[1],
+            master_class_speaker(body),
+        )
         total_futures = number_after(body, ("Total Futures",))
-        if reg is not None:
+        if reg is not None and not completed_session_locked:
             row["registered"] = reg
-        if attendance is not None:
+        if attendance is not None and not completed_session_locked:
             row["attendance"] = attendance
         if sales is not None:
             row["sales"] = sales
             row["result_received"] = 1
+            row["result_posted_at"] = msg.posted_at
         if route_sales_match:
             row["route_sales_pct"] = float(route_sales_match.group(1))
         if master_class_sales is not None:
             row["master_class_sales"] = master_class_sales
             row["master_class_speaker"] = speaker_name or row.get("master_class_speaker") or ""
+            row["speaker_attribution_source"] = speaker_attribution_source
             # Teams omit Total Futures when the cumulative value is zero.
             row["total_futures"] = total_futures or 0
 
@@ -779,6 +959,7 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
         latest_row = market_rows[-1]
         team = PREVIEW_CHANNELS[channel]
         for row in market_rows:
+            session_speaker = str(row.get("master_class_speaker") or team.removeprefix("Team ").strip())
             session_rows.append((
                 str(row["date"]),
                 f"{market}-{int(row['day'])}-{int(row['session'])}",
@@ -787,6 +968,7 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
                 (
                     f"  {{ market: '{ts_literal(market)}', team: '{team}', "
                     f"session: 'Day {int(row['day'])} Session {int(row['session'])}', "
+                    f"speaker: '{ts_literal(session_speaker)}', "
                     f"reg: {int(row.get('registered') or 0)}, "
                     f"attendance: {int(row.get('attendance') or 0)}, "
                     f"sales: {int(row.get('sales') or 0)} }}"
@@ -810,11 +992,37 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
         if is_finalized:
             # Final-route markets belong in the completed cards below, never in LIVE.
             continue
-        posted_route_rates = [
-            (str(row["posted_at"]), float(row.get("route_sales_pct") or 0.0))
-            for row in market_rows if float(row.get("route_sales_pct") or 0.0) > 0
+        posted_route_rows = [
+            row for row in market_rows if float(row.get("route_sales_pct") or 0.0) > 0
         ]
-        latest_posted_route_rate = max(posted_route_rates)[1] if posted_route_rates else None
+        latest_posted_route_row = max(posted_route_rows, key=lambda row: str(row["posted_at"])) if posted_route_rows else None
+        latest_posted_route_rate = (
+            float(latest_posted_route_row.get("route_sales_pct") or 0.0)
+            if latest_posted_route_row else None
+        )
+        posted_route_rate_note = ""
+        if latest_posted_route_row and len(completed_rows) > 1:
+            latest_session_attendance = int(latest_posted_route_row.get("attendance") or 0)
+            latest_session_sales = int(latest_posted_route_row.get("sales") or 0)
+            latest_session_rate = (
+                latest_session_sales / latest_session_attendance * 100
+                if latest_session_attendance else None
+            )
+            if latest_posted_route_rate is not None and latest_session_rate is not None and abs(latest_posted_route_rate - latest_session_rate) <= 0.6:
+                # Some live result posts duplicate the current-session
+                # conversion under the label "Total Route Conversion". Once a
+                # route has multiple completed sessions, that field is not an
+                # independent whole-route assertion. Keep the fail-closed gate
+                # for genuine cumulative conflicts, but do not compare the
+                # calculated whole-route rate against a mislabeled session rate.
+                posted_route_rate_note = (
+                    f" Latest post labels {latest_posted_route_rate:.1f}% as Total Route Conversion, "
+                    f"but it matches the current-session conversion ({latest_session_sales}/"
+                    f"{latest_session_attendance}); treated as a duplicated session rate. "
+                    f"Dashboard whole-route conversion is calculated across all {sales_attendance} "
+                    f"completed-session attendees."
+                )
+                latest_posted_route_rate = None
         posted_master_class = [
             (
                 str(row["posted_at"]),
@@ -863,6 +1071,7 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
                 else f" Route conversion uses {sales_attendance} cutoff attendees from all {sessions_completed} completed result posts."
             )
             + (f" Latest Slack-posted Total Route Conversion: {latest_posted_route_rate:.1f}%." if latest_posted_route_rate is not None else "")
+            + posted_route_rate_note
             + f" Speaker attribution uses the {speaker_source}: {speaker}."
             + (" FINAL route report received for this market — route complete; totals reflect the final route report." if is_finalized else "")
         )
@@ -900,6 +1109,47 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
     return [row for _, row in rendered], [row for *_sort, row in session_rows], latest_posted_at, latest_session_date
 
 
+def select_recent_final_candidates(
+    candidates: list[tuple[str, str, str, str, str]],
+    active_route_starts: list[str],
+) -> list[tuple[str, str, str, str, str]]:
+    """Keep current-run finals plus only the immediately preceding run.
+
+    Preview cards are an operating view, not an archive. When a route is live,
+    current-run finals are identified by their route start and the previous run
+    is the most recent final-post cohort before it. Between routes, retain the
+    two most recent final-post cohorts. A one-day cohort window tolerates a
+    team posting its final after midnight without reviving older markets.
+    """
+    if not candidates:
+        return []
+
+    ordered = sorted(candidates, key=lambda row: row[0], reverse=True)
+
+    def latest_cohorts(pool: list[tuple[str, str, str, str, str]], count: int) -> list[tuple[str, str, str, str, str]]:
+        anchors: list[date] = []
+        selected: list[tuple[str, str, str, str, str]] = []
+        for candidate in pool:
+            posted_date = datetime.fromisoformat(candidate[0]).date()
+            cohort = next((anchor for anchor in anchors if abs((anchor - posted_date).days) <= 1), None)
+            if cohort is None:
+                if len(anchors) >= count:
+                    continue
+                anchors.append(posted_date)
+            selected.append(candidate)
+        return selected
+
+    if not active_route_starts:
+        return latest_cohorts(ordered, 2)
+
+    active_floor = min(datetime.fromisoformat(value).date() for value in active_route_starts) - timedelta(days=2)
+    current_run = [row for row in ordered if datetime.fromisoformat(row[3]).date() >= active_floor]
+    previous_pool = [row for row in ordered if datetime.fromisoformat(row[3]).date() < active_floor]
+    previous_run = latest_cohorts(previous_pool, 1)
+    selected_ids = {id(row) for row in current_run + previous_run}
+    return [row for row in ordered if id(row) in selected_ids]
+
+
 def parse_preview(messages: list[SlackMessage], schedule_records: list[dict] | None = None) -> tuple[list[str], str]:
     active_rows, _active_session_rows, active_at, _active_data_date = parse_active_preview_rows(messages, schedule_records)
     rows: list[str] = [*active_rows]
@@ -908,10 +1158,15 @@ def parse_preview(messages: list[SlackMessage], schedule_records: list[dict] | N
         normalize_market_name(current.split("market: '", 1)[1].split("'", 1)[0])
         for current in active_rows if "market: '" in current
     }
+    active_route_starts = [
+        match.group(1)
+        for current in active_rows
+        if (match := re.search(r"startDate: '(\d{4}-\d{2}-\d{2})'", current))
+    ]
 
     # Speaker attribution comes from the latest cumulative Master Class line
     # for the same market/channel. The final post itself often omits speaker.
-    speaker_sources: dict[tuple[str, str], tuple[str, str]] = {}
+    speaker_sources: dict[tuple[str, str], tuple[str, str, str]] = {}
     route_date_sources: dict[tuple[str, str], list[tuple[str, str]]] = {}
     for msg in messages:
         if msg.channel not in PREVIEW_CHANNELS:
@@ -919,28 +1174,38 @@ def parse_preview(messages: list[SlackMessage], schedule_records: list[dict] | N
         market = market_from_preview(msg.body)
         if not market:
             continue
-        key = (msg.channel, normalize_market_name(active_preview_market_display(market)))
+        market_key = normalize_market_name(active_preview_market_display(market))
+        key = (msg.channel, market_key)
         session_date = body_date(msg.body)
         if session_date:
             route_date_sources.setdefault(key, []).append((msg.posted_at, session_date))
-        speaker = master_class_speaker(msg.body)
+        reported_speaker = master_class_speaker(msg.body)
+        parsed_session = session_key(msg.body)
+        if parsed_session and session_date:
+            speaker, attribution_source = preview_session_speaker(
+                msg.channel,
+                market_key,
+                session_date,
+                parsed_session[0],
+                parsed_session[1],
+                reported_speaker,
+            )
+        else:
+            speaker = reported_speaker or ""
+            attribution_source = "Slack Master Class label" if speaker else "team-name fallback"
         if not speaker:
             continue
         current = speaker_sources.get(key)
         if current is None or msg.posted_at > current[0]:
-            speaker_sources[key] = (msg.posted_at, speaker)
+            speaker_sources[key] = (msg.posted_at, speaker, attribution_source)
 
-    final_candidates: list[tuple[str, str, str, str]] = []
+    final_candidates: list[tuple[str, str, str, str, str]] = []
     seen_markets: set[str] = set()
     for msg in sorted(messages, key=lambda current: current.posted_at, reverse=True):
         if msg.channel not in PREVIEW_CHANNELS:
             continue
         body = msg.body
-        if not (
-            "FINAL ROUTE NUMBERS" in body
-            or "MARKET REPORT" in body
-            or "Final Numbers" in body
-        ):
+        if not is_preview_final(body):
             continue
         market = market_from_preview(body)
         reg = number_after(body, ("Total Reg",))
@@ -950,6 +1215,10 @@ def parse_preview(messages: list[SlackMessage], schedule_records: list[dict] | N
         deals = number_after(body, ("Total Deals",))
         if not market or reg is None or headcount is None or deals is None:
             continue
+        futures = preview_final_futures(body)
+        if futures > deals:
+            raise SystemExit(f"Preview final futures {futures} exceed total route deals {deals} for {market}; refusing to ship")
+        master_class_sold = deals - futures
         market_key = normalize_market_name(active_preview_market_display(market))
         if market_key in active_market_keys:
             continue
@@ -958,7 +1227,13 @@ def parse_preview(messages: list[SlackMessage], schedule_records: list[dict] | N
         seen_markets.add(market_key)
         attended = attendees or (headcount + late)
         team = preview_team_from_final(body, msg.channel)
-        speaker = speaker_sources.get((msg.channel, market_key), ("", ""))[1] or team.removeprefix("Team ").strip()
+        speaker_source = speaker_sources.get((msg.channel, market_key), ("", "", "team-name fallback"))
+        speaker = speaker_source[1] or team.removeprefix("Team ").strip()
+        attribution_note = (
+            " Team Millar's final two Chicago sessions (Day 5 Sessions 1–2) are attributed to Lura per Troy's confirmed floor-speaker correction; Slack's cumulative Master Class label remained Jay."
+            if speaker_source[2].startswith("Troy-confirmed")
+            else ""
+        )
         team_label = team_speaker_label(team, speaker)
         final_date = datetime.fromisoformat(msg.posted_at).date()
         route_dates = [
@@ -977,7 +1252,8 @@ def parse_preview(messages: list[SlackMessage], schedule_records: list[dict] | N
             "    totalSessions: null,\n"
             f"    registered: {reg},\n"
             f"    attendedCutoff: {headcount},\n"
-            f"    sales: {deals},\n"
+            f"    sales: {master_class_sold},\n"
+            f"    routeDeals: {deals},\n"
             f"    previewShowRate: {percent_rate(headcount, reg)},\n"
             f"    salesRate: {percent_rate(deals, headcount)},\n"
             "    status: 'yellow',\n"
@@ -985,22 +1261,17 @@ def parse_preview(messages: list[SlackMessage], schedule_records: list[dict] | N
             f"    startDate: '{route_start_date}',\n"
             f"    latestSessionDate: '{msg.posted_at[:10]}',\n"
             f"    sourcePostedAt: '{msg.posted_at}',\n"
-            f"    sourceNote: 'Final route report from #{msg.channel}, labeled {ts_literal(team)}, at {msg.posted_at}: {reg} reg, {headcount} cutoff headcount, {attended} attendees including late arrivals, {deals} deals.'\n"
+            f"    sourceNote: 'Final route report from #{msg.channel}, labeled {ts_literal(team)}, at {msg.posted_at}: {reg} reg, {headcount} cutoff headcount, {attended} attendees including late arrivals, {deals} route deals ({master_class_sold} Master Class sold + {futures} futures).{ts_literal(attribution_note)}'\n"
             "  }"
         )
-        final_candidates.append((msg.posted_at, msg.channel, market_key, rendered))
+        final_candidates.append((msg.posted_at, msg.channel, market_key, route_start_date, rendered))
 
-    # Preserve recent coverage from every visible preview team channel. The old
-    # global rows[:6] cap consumed all slots with #teamwayne/#teamdent because
-    # the Slack bundle is grouped by channel, hiding current #teamvogel finals.
-    finals_per_channel: dict[str, int] = {}
-    selected_finals: list[str] = []
-    for _posted_at, channel, _market_key, rendered in final_candidates:
-        if finals_per_channel.get(channel, 0) >= 2:
-            continue
-        selected_finals.append(rendered)
-        finals_per_channel[channel] = finals_per_channel.get(channel, 0) + 1
-    rows.extend(selected_finals)
+    # Preview market cards are intentionally a two-run operating view: the
+    # current run (LIVE plus any markets that already finalized) and the one
+    # immediately preceding run. Older markets remain available in team history,
+    # but must not linger beside current routes.
+    selected_finals = select_recent_final_candidates(final_candidates, active_route_starts)
+    rows.extend(rendered for _posted_at, _channel, _market_key, _route_start, rendered in selected_finals)
 
     # A live route can transition market-by-market: once a FINAL ROUTE NUMBERS
     # post arrives that market moves from active_rows into final-route rows.
@@ -1078,14 +1349,20 @@ def parse_me_abc(body: str) -> str | None:
             elif left_count and abs((right_count / left_count) - rate) <= 0.02:
                 sold, buyers = right_count, left_count
             else:
-                parts.append(f"{grade}: {value} (as reported)")
+                # The ratio still carries source-supported sold/buyer counts,
+                # but the posted percentage does not reconcile arithmetically.
+                # Preserve all three source values with explicit semantics and
+                # an audit note instead of dropping the component downstream.
+                parts.append(f"{grade}: {right_count} buyers · {left_count} sold ({percent}% as reported)")
                 continue
             buyer_label = "buyer" if buyers == 1 else "buyers"
             parts.append(f"{grade}: {buyers} {buyer_label} · {sold} sold ({percent}%)")
             continue
-        zero_match = re.fullmatch(r"0(?:\s*=\s*0\s*%)?", value)
-        if zero_match:
-            parts.append(f"{grade}: 0 buyers")
+        count_only_match = re.fullmatch(r"(\d+)", value)
+        if count_only_match:
+            # Under WS Buyers Sold, an unqualified number is a sold count.
+            # Do not invent buyer counts or a percentage for count-only posts.
+            parts.append(f"{grade}: {count_only_match.group(1)} sold")
             continue
         value = re.sub(r"\s*=\s*", " = ", value)
         value = re.sub(r"\s*%", "%", value)
@@ -1212,6 +1489,61 @@ def parse_me(messages: list[SlackMessage]) -> tuple[list[str], list[str], str]:
     return current_rows[:8], summary_rows[:6], latest
 
 
+def render_inside_sales_adapters(src: Path, fetched_at: str) -> tuple[str, str, str, str, str] | None:
+    inside_path = src / "../data/inside_replit_latest.json"
+    collections_path = src / "../data/collections_replit_latest.json"
+    if not inside_path.exists() or not collections_path.exists():
+        return None
+    inside = json.loads(inside_path.read_text(encoding="utf-8"))
+    collections = json.loads(collections_path.read_text(encoding="utf-8"))
+    groups = inside.get("groups") or []
+    if not groups:
+        raise SystemExit("Inside Sales Replit source returned no groups; refusing to ship stale adapter state")
+    source_note = f"Lindsey/Replit › TLWB Inside Sales DPL › groups · fetched {inside.get('lastUpdated') or fetched_at}"
+    category_totals: dict[str, dict[str, float]] = {}
+    for group in groups:
+        for item in group.get("byLeadType") or []:
+            source = str(item.get("leadType") or "Unknown")
+            bucket = category_totals.setdefault(source, {"leads": 0.0, "revenue": 0.0})
+            bucket["leads"] += float(item.get("leads") or 0)
+            bucket["revenue"] += float(item.get("revenue") or 0)
+    total_revenue = sum(bucket["revenue"] for bucket in category_totals.values())
+    category_rows = []
+    for source, bucket in sorted(category_totals.items(), key=lambda item: (-item[1]["revenue"], item[0].lower())):
+        leads = int(bucket["leads"])
+        revenue = bucket["revenue"]
+        dpl = revenue / leads if leads else 0
+        share = revenue / total_revenue if total_revenue else 0
+        category_rows.append(
+            f"  {{ source: '{ts_literal(source)}', leads: {leads}, revenue: {numeric_literal(revenue)}, dpl: {numeric_literal(round(dpl))}, revenueShare: {numeric_literal(share)} }}"
+        )
+    rep_rows = []
+    for group in sorted(groups, key=lambda item: (-float(item.get("ytdDpl") or 0), str(item.get("group") or "").lower())):
+        rep = str(group.get("group") or "Unknown")
+        leads = int(group.get("totalLeads") or 0)
+        revenue = float(group.get("totalRevenue") or 0)
+        dpl = float(group.get("ytdDpl") or 0)
+        rep_rows.append(
+            f"  {{ rep: '{ts_literal(rep)}', leads: {leads}, revenue: {numeric_literal(revenue)}, dpl: {numeric_literal(dpl)}, collected: null, collectedDpl: null, source: '{ts_literal(source_note)}' }}"
+        )
+    ytd = {str(row.get("speaker")): row for row in collections.get("ytd") or []}
+    past6 = {str(row.get("speaker")): row for row in collections.get("past6Weeks") or []}
+    past10 = {str(row.get("speaker")): row for row in collections.get("past10Weeks") or []}
+    pending = {str(row.get("speaker")): row for row in collections.get("ytdPending") or []}
+    collection_rows = []
+    for speaker, row in ytd.items():
+        collection_rows.append(
+            f"  {{ speaker: '{ts_literal(speaker)}', amountIntoCollections: {numeric_literal(row.get('amountIntoCollections'))}, collectionsOut: {numeric_literal(row.get('weeklyCollected'))}, pendingOutstanding: {numeric_literal((pending.get(speaker) or {}).get('amount'))}, sixWeekCollected: {numeric_literal((past6.get(speaker) or {}).get('weeklyCollected'))}, tenWeekCollected: {numeric_literal((past10.get(speaker) or {}).get('weeklyCollected'))}, dplOrCollectionMetric: 'YTD collections performance · fetched {ts_literal(fetched_at)}' }}"
+        )
+    return (
+        "export const insideSalesSourceCategories: InsideSalesSourceRow[] = [\n" + ",\n".join(category_rows) + "\n];",
+        "export const insideSalesRepRows: InsideSalesRepRow[] = [\n" + ",\n".join(rep_rows) + "\n];",
+        "export const speakerCollectionRows: SpeakerCollectionRow[] = [\n" + ",\n".join(collection_rows) + "\n];",
+        str(inside.get("lastUpdated") or fetched_at),
+        fetched_at,
+    )
+
+
 def render_source(key: str, name: str, url: str, fetched_at: str, role: str, caveat: str) -> str:
     return (
         "  {\n"
@@ -1245,6 +1577,7 @@ def main() -> int:
     preview_rows, preview_at = parse_preview(messages, schedule_records)
     _active_rows, active_session_rows, _active_at, _active_data_date = parse_active_preview_rows(messages, schedule_records)
     me_current_rows, me_summary_rows, me_at = parse_me(messages)
+    inside_sales_adapters = render_inside_sales_adapters(args.src, fetched_at)
 
     exec_path = args.src / "src/data/executiveAdapters.ts"
     exec_text = exec_path.read_text(encoding="utf-8")
@@ -1262,7 +1595,7 @@ def main() -> int:
             render_source(
                 f"slack_active_preview_{source_key_suffix}",
                 "Slack preview team channels — latest final route reports",
-                "slack://channels/teamwayne,teamdent,teamwyman,teamvogel/latest-final-route-reports",
+                "slack://channels/teamwayne,teamdent,teamwyman,teamvogel,teammillar/latest-final-route-reports",
                 fetched_at,
                 "active_preview_slack_export",
                 "Latest final route reports are parsed from visible preview team channels. Cron fails if fewer than three final market reports parse.",
@@ -1307,6 +1640,19 @@ def main() -> int:
     page_text = page_path.read_text(encoding="utf-8")
     page_text = replace_block(page_text, "export const previewSessions: PreviewSessionRow[] = [", "];", "export const previewSessions: PreviewSessionRow[] = [\n" + ",\n".join(active_session_rows) + "\n];")
     page_text = replace_block(page_text, "export const currentMiddleEndWorkshops: MiddleEndCurrentWorkshop[] = [", "];", "export const currentMiddleEndWorkshops: MiddleEndCurrentWorkshop[] = [\n" + ",\n".join(me_current_rows) + "\n];")
+    if inside_sales_adapters:
+        inside_source_block, inside_rep_block, collections_block, inside_updated_at, collections_fetched_at = inside_sales_adapters
+        page_text = replace_block(page_text, "export const insideSalesSourceCategories: InsideSalesSourceRow[] = [", "];", inside_source_block)
+        page_text = replace_block(page_text, "export const insideSalesRepRows: InsideSalesRepRow[] = [", "];", inside_rep_block)
+        page_text = replace_block(page_text, "export const speakerCollectionRows: SpeakerCollectionRow[] = [", "];", collections_block)
+        source_meta = (
+            f"export const insideSalesSourceUpdatedAt = '{ts_literal(inside_updated_at)}';\n"
+            f"export const collectionsSourceFetchedAt = '{ts_literal(collections_fetched_at)}';"
+        )
+        if "export const insideSalesSourceUpdatedAt =" in page_text:
+            page_text = re.sub(r"export const insideSalesSourceUpdatedAt = .*?;\nexport const collectionsSourceFetchedAt = .*?;", source_meta, page_text, count=1)
+        else:
+            page_text = page_text.replace("export type MarketingHistoryChannel = {", source_meta + "\n\nexport type MarketingHistoryChannel = {", 1)
     page_path.write_text(page_text, encoding="utf-8")
 
     expo_path = args.src / "src/data/expoStrip.ts"
