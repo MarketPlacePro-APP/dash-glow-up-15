@@ -1,0 +1,42 @@
+name: TLWB KPI Freshness Monitor
+
+# Independent, off-Studio staleness alarm. Polls the protected /api/status
+# endpoint and fails (which notifies repo watchers / can page via a notify step)
+# when the last successful publish is older than the allowed threshold. This is
+# the safety net the current Studio-resident watchdog cannot provide, because it
+# runs even when the Studio is offline.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "*/30 * * * *"
+
+jobs:
+  check-freshness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      MAX_AGE_HOURS: "6"
+      TLWB_KPI_AUTH_USERNAME: ${{ secrets.TLWB_KPI_AUTH_USERNAME }}
+      TLWB_KPI_AUTH_PASSWORD: ${{ secrets.TLWB_KPI_AUTH_PASSWORD }}
+    steps:
+      - name: Poll /api/status and assert freshness
+        run: |
+          set -euo pipefail
+          status="$(curl -sS -u "$TLWB_KPI_AUTH_USERNAME:$TLWB_KPI_AUTH_PASSWORD" https://tlwb-kpi.vercel.app/api/status)"
+          echo "$status" | python3 - "$MAX_AGE_HOURS" <<'PY'
+          import json, sys
+          from datetime import datetime, timezone
+          raw = sys.stdin.read()
+          max_age_hours = float(sys.argv[1])
+          data = json.loads(raw)
+          published = data.get("last_published") or data.get("refresh", {}).get("last_published_at")
+          if not published:
+              raise SystemExit(f"No last_published in status payload: {raw[:300]}")
+          ts = datetime.fromisoformat(published.replace("Z", "+00:00"))
+          age_hours = (datetime.now(timezone.utc) - ts).total_seconds() / 3600
+          print(f"last_published={published} age_hours={age_hours:.2f} threshold={max_age_hours}")
+          if age_hours > max_age_hours:
+              raise SystemExit(f"STALE: dashboard last published {age_hours:.1f}h ago (> {max_age_hours}h)")
+          print("OK: dashboard is fresh")
+          PY

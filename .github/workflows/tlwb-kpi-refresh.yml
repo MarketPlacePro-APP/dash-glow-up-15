@@ -1,0 +1,70 @@
+name: TLWB KPI Refresh
+
+# Durable, off-Studio replacement for the Mac-Studio cron that publishes the
+# TLWB KPI dashboard. Phase 1 (this file) runs the full source -> generate ->
+# gate -> build pipeline with NO deploy, proving it runs headlessly. Flip
+# deploy on (Phase 2) only after a green Phase 1 and an explicit cutover.
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_id:
+        description: "Refresh request id (set by /api/refresh via repository_dispatch)"
+        required: false
+  repository_dispatch:
+    types: [tlwb-kpi-refresh]
+  schedule:
+    # 08:05 / 12:05 / 16:05 / 20:05 America/Denver, covering both MDT (UTC-6)
+    # and MST (UTC-7). Duplicate runs are deduped by the semantic fingerprint
+    # once deploy is enabled in Phase 2.
+    - cron: "5 14,18,22 * * *"
+    - cron: "5 2 * * *"
+    - cron: "5 15,19,23 * * *"
+    - cron: "5 3 * * *"
+
+concurrency:
+  group: tlwb-kpi-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TLWB_KPI_DEPLOY: "0" # Phase 1: never deploy from CI yet.
+      TLWB_CI_FULL_REFRESH: "1"
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+    steps:
+      # Reproduce the workspace-main/dash-glow-up-15 layout the committed Python
+      # generators expect (they resolve data paths via parents[2]).
+      - name: Check out repo into workspace-main/dash-glow-up-15
+        uses: actions/checkout@v4
+        with:
+          path: workspace-main/dash-glow-up-15
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: workspace-main/dash-glow-up-15/package-lock.json
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python deps
+        run: pip install openpyxl google-api-python-client google-auth
+
+      - name: Run refresh pipeline (no deploy)
+        working-directory: workspace-main/dash-glow-up-15
+        run: bash ci/tlwb_kpi_ci_refresh.sh
+
+      - name: Upload built bundle + fingerprint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tlwb-kpi-dist
+          path: |
+            workspace-main/dash-glow-up-15/dist
+          if-no-files-found: warn
