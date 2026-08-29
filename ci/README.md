@@ -27,7 +27,21 @@ reproducing the `workspace-main/dash-glow-up-15` layout they expect.
 | `TLWB_KPI_AUTH_USERNAME` / `TLWB_KPI_AUTH_PASSWORD` | Freshness monitor + Phase 2 route verification |
 | `VERCEL_TOKEN` | Phase 2 deploy only (`org team_eHUDYQiAtTZN5FZP7mhL6AJu`, `project prj_bYcixEpEvztrj98MPbM0elNf7uU1`) |
 | `TLWB_REFRESH_GIST_TOKEN` | Phase 2 refresh-queue gist (`id 9417e6feadd30ef20d8a8c609377e05c`) |
-| `TLWB_WORKER_TOKEN` | Phase 2 status callback to `/api/internal/refresh-work` |
+| `TLWB_WORKER_TOKEN` | Status callback to `/api/internal/refresh-work` (button loop + Phase 2) |
+
+## "Refresh now" button -> GitHub Actions
+
+`api/refresh` fires `repository_dispatch: tlwb-kpi-refresh` (in addition to queuing
+the gist state) so a button click triggers this workflow directly — no dependency
+on the Studio worker polling. This is guarded by a **Vercel** environment variable:
+
+| Vercel env var | Used for |
+| --- | --- |
+| `TLWB_DISPATCH_TOKEN` | GitHub token (fine-grained: Actions read/write on this repo) that lets `api/refresh` trigger the workflow. Optional `TLWB_DISPATCH_REPO` overrides the default `MarketPlacePro-APP/dash-glow-up-15`. |
+
+Until `TLWB_DISPATCH_TOKEN` is set on Vercel the dispatch is skipped, and until
+`TLWB_WORKER_TOKEN` is a GitHub secret the workflow's status callbacks are skipped
+— so the whole button loop stays dormant through Phase 1 and activates at cutover.
 
 ## Still needed from the Studio (reproducibility gaps)
 

@@ -4,6 +4,12 @@ name: TLWB KPI Refresh
 # TLWB KPI dashboard. Phase 1 (this file) runs the full source -> generate ->
 # gate -> build pipeline with NO deploy, proving it runs headlessly. Flip
 # deploy on (Phase 2) only after a green Phase 1 and an explicit cutover.
+#
+# The "Refresh now" button (api/refresh) fires repository_dispatch: tlwb-kpi-refresh
+# once TLWB_DISPATCH_TOKEN is set on Vercel, so the button triggers this workflow
+# directly instead of only queuing a gist request the Studio must poll. Status is
+# posted back to /api/internal/refresh-work only when TLWB_WORKER_TOKEN is present,
+# so this stays dormant until cutover.
 
 on:
   workflow_dispatch:
@@ -35,6 +41,8 @@ jobs:
       TLWB_CI_FULL_REFRESH: "1"
       GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      TLWB_WORKER_TOKEN: ${{ secrets.TLWB_WORKER_TOKEN }}
+      REQUEST_ID: ${{ github.event.inputs.request_id || github.event.client_payload.request_id }}
     steps:
       # Reproduce the workspace-main/dash-glow-up-15 layout the committed Python
       # generators expect (they resolve data paths via parents[2]).
@@ -56,9 +64,36 @@ jobs:
       - name: Install Python deps
         run: pip install openpyxl google-api-python-client google-auth
 
+      # Move the button-requested state to "running" (only when a request id and
+      # the worker token are present; otherwise dormant).
+      - name: Mark refresh running
+        if: env.REQUEST_ID != '' && env.TLWB_WORKER_TOKEN != ''
+        run: |
+          curl -sS -X POST https://tlwb-kpi.vercel.app/api/internal/refresh-work \
+            -H "Authorization: Bearer $TLWB_WORKER_TOKEN" -H "Content-Type: application/json" \
+            -d "{\"action\":\"start\",\"request_id\":\"$REQUEST_ID\",\"message\":\"GitHub Actions is collecting sources and running gates.\"}" || true
+
       - name: Run refresh pipeline (no deploy)
+        id: refresh
         working-directory: workspace-main/dash-glow-up-15
-        run: bash ci/tlwb_kpi_ci_refresh.sh
+        run: bash ci/tlwb_kpi_ci_refresh.sh 2>&1 | tee /tmp/tlwb-refresh.log
+
+      # Report the outcome back to the refresh state machine so the dashboard's
+      # "Refresh now" UI resolves. Dormant unless a request id + worker token exist.
+      - name: Report refresh result
+        if: always() && env.REQUEST_ID != '' && env.TLWB_WORKER_TOKEN != ''
+        run: |
+          if [ "${{ steps.refresh.outcome }}" != "success" ]; then
+            action=fail; msg="Refresh failed a validation or build gate; the prior verified build remains live."
+          elif grep -q "TLWB_KPI_DEPLOYED" /tmp/tlwb-refresh.log; then
+            action=complete; msg="New source data was published and verified."
+          else
+            action=no_change; msg="Checked all sources and gates; no material change was published."
+          fi
+          fp=$(grep -oE "fingerprint=[0-9a-f]{64}" /tmp/tlwb-refresh.log | tail -1 | cut -d= -f2 || true)
+          curl -sS -X POST https://tlwb-kpi.vercel.app/api/internal/refresh-work \
+            -H "Authorization: Bearer $TLWB_WORKER_TOKEN" -H "Content-Type: application/json" \
+            -d "{\"action\":\"$action\",\"request_id\":\"$REQUEST_ID\",\"message\":\"$msg\",\"deployed_fingerprint\":\"$fp\"}" || true
 
       - name: Upload built bundle + fingerprint
         if: always()
