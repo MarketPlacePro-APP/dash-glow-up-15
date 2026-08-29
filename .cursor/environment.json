@@ -1,0 +1,17 @@
+{
+  "name": "TLWB KPI Dashboard",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "npm run dev",
+      "description": "Vite dev server for the TLWB KPI Dashboard on http://localhost:8080"
+    }
+  ],
+  "ports": [
+    {
+      "name": "vite",
+      "port": 8080
+    }
+  ]
+}
