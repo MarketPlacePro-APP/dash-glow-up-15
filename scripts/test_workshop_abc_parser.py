@@ -35,15 +35,25 @@ class WorkshopAbcParserTests(unittest.TestCase):
             "A: 8 buyers · 6 sold (75%) · B: 5 buyers · 5 sold (100%) · C: 19 buyers · 10 sold (53%)",
         )
 
-    def test_preserves_reported_zero_grade(self) -> None:
+    def test_preserves_count_only_sold_grade(self) -> None:
         body = (
-            "*Market:* Birmingham, AL | *BU’s:* 39 | *Total Sales:* 16 | "
-            "*WS Buyers Sold:*  | *A:* 0 | *B:* 3/5 = 60% | "
-            "*C:* 13/31 = 42% | *Legacy Pro:* 0"
+            "*Market:* Tulsa Oklahoma | *BU’s:* 16 | *Total Sales:* 7 | "
+            "*WS Buyers Sold:* | *A:* 2 | *B:* 0 | *C:* 5 | *Legacy Pro:* 1"
         )
         self.assertEqual(
             module.parse_me_abc(body),
-            "A: 0 buyers · B: 5 buyers · 3 sold (60%) · C: 31 buyers · 13 sold (42%)",
+            "A: 2 sold · B: 0 sold · C: 5 sold",
+        )
+
+    def test_preserves_inconsistent_reported_ratio_with_semantics(self) -> None:
+        body = (
+            "*Market:* Memphis, TN | *BU’s:* 77 | *Total Sales:* 24 | "
+            "*WS Buyers Sold:* | *A:* 4/7 = 57% | *B:* 4/8 = 50% | "
+            "*C:* 16/57 = 26% | *Legacy Pro:* 2"
+        )
+        self.assertEqual(
+            module.parse_me_abc(body),
+            "A: 7 buyers · 4 sold (57%) · B: 8 buyers · 4 sold (50%) · C: 57 buyers · 16 sold (26% as reported)",
         )
 
     def test_returns_none_when_final_has_no_buyer_mix(self) -> None:

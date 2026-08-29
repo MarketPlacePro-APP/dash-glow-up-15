@@ -1,0 +1,9 @@
+qa-*.png
+audit-live*.png
+test-results/
+tmp/
+tmp_*.mjs
+tmp_*.cjs
+*.tsbuildinfo
+.learnings/
+*.log

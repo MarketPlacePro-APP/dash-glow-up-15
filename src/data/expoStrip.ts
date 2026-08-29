@@ -1,38 +1,41 @@
 import type { SourceMeta } from '@/types';
 
 export type ExpoStrip = {
-  bus: number;
-  guests: number;
-  utl: number;
-  tlwb: number;
-  keyspire: number;
-  total: number;
-  sourceMode: 'static-export';
+  bus: number | null;
+  guests: number | null;
+  utl: number | null;
+  tlwb: number | null;
+  keyspire: number | null;
+  total: number | null;
+  status: 'next-count-needed' | 'current';
+  label: string;
+  sourceMode: 'post-event-reset' | 'slack-count';
   sourcePostedAt: string;
   lastFetchedAt: string;
   source: SourceMeta;
 };
 
-// Source: Slack #expo post, May Investor Expo as of 3:03pm MST 04/29/2026.
-// Fetched via Slack/API-backed local export during review refresh on 2026-05-05T14:09:01Z.
+// Source: Slack #expo current Investor Expo count parsed from the latest checked post.
 export const expoStrip: ExpoStrip = {
-  bus: 131,
-  guests: 53,
-  utl: 42,
-  tlwb: 88,
-  keyspire: 1,
-  total: 184,
-  sourceMode: 'static-export',
-  sourcePostedAt: '2026-04-29T15:03:00-06:00',
-  lastFetchedAt: '2026-05-05T14:09:01Z',
+  bus: 129,
+  guests: 72,
+  utl: 7,
+  tlwb: 95,
+  keyspire: 0,
+  total: 201,
+  status: 'current',
+  label: 'August Investor Expo',
+  sourceMode: 'slack-count',
+  sourcePostedAt: '2026-07-22T14:55:54.888579-06:00',
+  lastFetchedAt: '2026-08-29T06:04:55.955799-06:00',
   source: {
-    sourceKey: 'slack_expo_may_investor_expo_2026_04_29',
-    sourceName: 'Slack #expo — May Investor Expo count post',
-    sourceUrl: 'slack://channel/expo/post/2026-04-29T15:04-06:00',
-    fetchedAt: '2026-05-05T14:09:01Z',
+    sourceKey: 'slack_expo_current_2026_08_29',
+    sourceName: 'Slack #expo — current Investor Expo count',
+    sourceUrl: 'slack://channel/expo/posts/2026-07-22T14:55:54.888579-06:00',
+    fetchedAt: '2026-08-29T06:04:55.955799-06:00',
     trustLevel: 'operational',
     sampleData: false,
-    sourceRole: 'expo_strip_static_export',
-    caveat: 'Static Slack export: latest visible #expo count post was 2026-04-29 15:04 MDT; stale until a newer #expo count is fetched.'
+    sourceRole: 'expo_strip_current_count',
+    caveat: 'August Investor Expo count parsed from live #expo at 2026-07-22T14:55:54.888579-06:00.'
   }
 };

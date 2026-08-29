@@ -10,14 +10,25 @@ import re
 import zipfile
 import xml.etree.ElementTree as ET
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "dash-glow-up-15" / "src" / "data" / "generatedData.ts"
+SCHEDULE_JSON_OUT = ROOT / "dash-glow-up-15" / "data" / "schedule.json"
 NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 RNS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
-FETCHED = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+TZ = ZoneInfo("America/Denver")
+FETCHED = datetime.now(TZ).replace(microsecond=0).isoformat()
+
+ACTIVE_PREVIEW_TEAM_OVERRIDES = {
+    # 2026-06-22 source QA: live preview posts for Columbus are in #teamwayne.
+    # The schedule export still labels this route Team Vogel/Cord, so the
+    # review build corrects the rendered active route block while preserving
+    # the sheet row/source reference.
+    ("columbus, oh", "2026-06-20"): ("wayne-gray", "Team Wayne/Gray"),
+}
 
 
 def colnum(ref: str) -> int:
@@ -41,6 +52,10 @@ def clean(v):
     if v is None:
         return ""
     return str(v).strip()
+
+
+def normalize_market_key(value: str) -> str:
+    return re.sub(r"\s+", " ", clean(value).lower()).strip()
 
 
 def excel_date(v):
@@ -110,14 +125,40 @@ def normalize_team(raw: str):
     return 'ops', 'Ops / Unassigned'
 
 
-def schedule_status(date_text: str) -> str:
-    today = datetime.now(timezone.utc).date()
+def schedule_status(date_text: str, today: date | None = None) -> str:
+    today = today or datetime.now(TZ).date()
     dt = datetime.fromisoformat(date_text).date()
     if dt < today:
         return 'historical'
-    if dt <= today + timedelta(days=7):
+    if dt == today:
         return 'active'
     return 'upcoming'
+
+
+def route_status(start_text: str, end_text: str, today: date | None = None) -> str:
+    today = today or datetime.now(TZ).date()
+    start = datetime.fromisoformat(start_text).date()
+    end = datetime.fromisoformat(end_text).date()
+    if end < today:
+        return 'historical'
+    if start <= today <= end:
+        return 'active'
+    return 'upcoming'
+
+
+def parse_2026_event_range(event: str) -> tuple[str, str] | None:
+    match = re.search(r'(\d{1,2})/(\d{1,2})(?:\s*-\s*(?:(\d{1,2})/)?(\d{1,2}))', event)
+    if not match:
+        return None
+    start_month = int(match.group(1))
+    start_day = int(match.group(2))
+    end_month = int(match.group(3) or start_month)
+    end_day = int(match.group(4))
+    start = datetime(2026, start_month, start_day).date()
+    end = datetime(2026, end_month, end_day).date()
+    if end < start:
+        end = datetime(2026, end_month + 1, end_day).date()
+    return start.isoformat(), end.isoformat()
 
 
 def safe_id(*parts: str) -> str:
@@ -169,6 +210,8 @@ class Workbook:
                             val = self.shared[int(val)]
                         except Exception:
                             pass
+                elif c.attrib.get('t') == 'inlineStr':
+                    val = ''.join(t.text or '' for t in c.iter(NS + 't'))
                 vals.append(val)
                 last = idx
             yield vals
@@ -188,11 +231,162 @@ def meta(key, name, url, trust='operational', role=None):
     return d
 
 
+WORKSHOP_SCHEDULE_SOURCE = 'data/google_exports/workshop_schedule_sheet_1psHz1_latest.xlsx'
+WORKSHOP_SCHEDULE_GROUPS = (
+    ('Market A', 4, 5, 6, 24),
+    ('Market B', 29, 30, 31, 48),
+    ('Market C', 53, 54, 55, 73),
+    ('Market D', 78, 79, 80, 98),
+)
+MONTH_NUMBERS = {
+    'jan': 1, 'january': 1,
+    'feb': 2, 'february': 2,
+    'mar': 3, 'march': 3,
+    'apr': 4, 'april': 4,
+    'may': 5,
+    'jun': 6, 'june': 6,
+    'jul': 7, 'july': 7,
+    'aug': 8, 'august': 8,
+    'sep': 9, 'sept': 9, 'september': 9,
+    'oct': 10, 'october': 10,
+    'nov': 11, 'november': 11,
+    'dec': 12, 'december': 12,
+}
+
+
+def parse_2026_written_range(value: str) -> tuple[str, str] | None:
+    """Parse Workshop Team Scheduling labels such as 'July 31-Aug 2'."""
+    text = clean(value).replace('–', '-').replace('—', '-')
+    match = re.search(
+        r'([A-Za-z]+)\s*(\d{1,2})(?:st|nd|rd|th)?\s*-\s*'
+        r'(?:([A-Za-z]+)\s*)?(\d{1,2})(?:st|nd|rd|th)?',
+        text,
+        re.IGNORECASE,
+    )
+    if not match:
+        return None
+    start_month = MONTH_NUMBERS.get(match.group(1).lower())
+    end_month = MONTH_NUMBERS.get((match.group(3) or match.group(1)).lower())
+    if not start_month or not end_month:
+        return None
+    try:
+        start = datetime(2026, start_month, int(match.group(2))).date()
+        end = datetime(2026, end_month, int(match.group(4))).date()
+    except ValueError:
+        return None
+    if end < start:
+        return None
+    return start.isoformat(), end.isoformat()
+
+
+def normalize_workshop_team(raw: str) -> tuple[str, str]:
+    value = clean(raw).lower()
+    if 'jazey' in value or 'drecksel' in value or 'drechsel' in value:
+        return 'drexel', 'Team Drexel'
+    if 'nicholas' in value or 'lamagna' in value or 'nick' in value:
+        return 'nick', 'Team Nick'
+    if 'megan' in value or 'shaw' in value:
+        return 'shaw', 'Team Shaw'
+    if 'tony' in value or 'rosenbum' in value:
+        return 'tony', 'Team Tony'
+    if 'nate' in value or 'harris' in value:
+        return 'nate', 'Team Nate'
+    return 'ops', f'{clean(raw) or "Speaker pending"} / speaker'
+
+
+def extract_workshop_venue(rooming_list: str) -> str:
+    value = clean(rooming_list)
+    if '|' not in value:
+        return ''
+    return clean(value.rsplit('|', 1)[-1])
+
+
+def parse_workshop_schedule_rows(rows: list[list[str]], today=None) -> tuple[list[dict], list[dict]]:
+    """Build current/future ME workshop calendar records from the wide 2026 schedule."""
+    today = today or datetime.now(TZ).date()
+    blocks: list[dict] = []
+    events: list[dict] = []
+
+    def source_row(row_number: int) -> list[str]:
+        return rows[row_number - 1] if 0 < row_number <= len(rows) else []
+
+    for group_label, date_row, market_row, speaker_row, rooming_row in WORKSHOP_SCHEDULE_GROUPS:
+        date_values = source_row(date_row)
+        market_values = source_row(market_row)
+        speaker_values = source_row(speaker_row)
+        rooming_values = source_row(rooming_row)
+        max_columns = max(map(len, (date_values, market_values, speaker_values, rooming_values)), default=0)
+        for column in range(1, max_columns):
+            date_range = parse_2026_written_range(date_values[column] if column < len(date_values) else '')
+            market = clean(market_values[column] if column < len(market_values) else '')
+            if not date_range or not market or market.upper() in {'OFF', 'EXPO'}:
+                continue
+            start_date, end_date = date_range
+            if datetime.fromisoformat(end_date).date() < today:
+                continue
+            speaker = clean(speaker_values[column] if column < len(speaker_values) else '')
+            rooming_list = clean(rooming_values[column] if column < len(rooming_values) else '')
+            venue = extract_workshop_venue(rooming_list) or 'venue pending'
+            team_key, team = normalize_workshop_team(speaker)
+            status = route_status(start_date, end_date, today=today)
+            source_rows = [market_row, speaker_row, rooming_row]
+            block_id = safe_id('me-workshop-schedule', market, team_key, start_date, end_date, str(column + 1))
+            block = {
+                **meta('workshop_team_schedule', 'Workshop Team Scheduling', WORKSHOP_SCHEDULE_SOURCE, 'operational', 'middle_end_schedule_supplement'),
+                'id': block_id,
+                'market': market,
+                'route': 'Middle-End Workshop',
+                'team': team,
+                'teamKey': team_key,
+                'status': status,
+                'startDate': start_date,
+                'endDate': end_date,
+                'eventCount': 1,
+                'areas': [market],
+                'venues': [venue],
+                'sourceSheet': f'2026 Schedule · {group_label}',
+                'sourceRows': source_rows,
+            }
+            event = {
+                **meta('workshop_team_schedule', 'Workshop Team Scheduling', WORKSHOP_SCHEDULE_SOURCE, 'operational', 'middle_end_schedule_supplement'),
+                'id': f'{block_id}-event',
+                'market': market,
+                'route': 'Middle-End Workshop',
+                'team': team,
+                'teamKey': team_key,
+                'weekOf': start_date,
+                'startDate': start_date,
+                'endDate': end_date,
+                'location': venue,
+                'state': status,
+                'owner': team,
+                'eventType': 'middle_end_workshop',
+                'area': market,
+                'city': market,
+                'venue': venue,
+                'address': '',
+                'times': 'time pending',
+                'parking': '',
+                'ballroom': '',
+                'locationCode': '',
+                'hotelStatus': '',
+                'onSiteContact': '',
+                'sourceSheet': f'2026 Schedule · {group_label}',
+                'sourceRow': market_row,
+                'sourceTabRole': 'middle_end_schedule',
+                'notes': f'Parsed from Workshop Team Scheduling column {column + 1}; rooming source: {rooming_list or "pending"}.',
+            }
+            blocks.append(block)
+            events.append(event)
+    return blocks, events
+
+
 def generate():
-    sessions_wb = Workbook(ROOT / 'data/google_exports/numbers_per_session_1dfke_2026-04-28.xlsx')
-    schedule_wb = Workbook(ROOT / 'data/google_exports/upcoming_schedule_1F05mJ_2026-04-28.xlsx')
+    sessions_wb = Workbook(ROOT / 'data/google_exports/numbers_per_session_1dfke_latest.xlsx')
+    schedule_wb = Workbook(ROOT / 'data/google_exports/upcoming_schedule_1F05mJ_latest.xlsx')
+    workshop_schedule_wb = Workbook(ROOT / WORKSHOP_SCHEDULE_SOURCE)
     comparisons_wb = Workbook(ROOT / 'data/lindsey_shared_2026-04-25/Market_Comparisons.xlsx')
-    ws_wb = Workbook(ROOT / 'data/lindsey_shared_2026-04-25/2026_WS_Sales_Tracker.xlsx')
+    ws_wb = Workbook(ROOT / 'data/google_exports/ws_sales_tracker_1CmJ_latest.xlsx')
 
     sessions = []
     market_session_rows = defaultdict(list)
@@ -203,7 +397,7 @@ def generate():
         if not market:
             continue
         rec = {
-            **meta('numbers_per_session_adapter', 'Numbers Per Session export', 'data/google_exports/numbers_per_session_1dfke_2026-04-28.xlsx', 'operational', 'session_truth'),
+            **meta('numbers_per_session_adapter', 'Numbers Per Session export', 'data/google_exports/numbers_per_session_1dfke_latest.xlsx', 'operational', 'session_truth'),
             'market': market,
             'date': excel_date(row[2]),
             'sessionNumber': int(num(row[3], 0)),
@@ -228,10 +422,10 @@ def generate():
         deals = sum(r['deals'] for r in rows)
         latest = max((r['date'] for r in rows if r['date']), default='')
         finals.append({
-            **meta('numbers_per_session_adapter', 'Numbers Per Session export', 'data/google_exports/numbers_per_session_1dfke_2026-04-28.xlsx', 'operational', 'session_rollup'),
+            **meta('numbers_per_session_adapter', 'Numbers Per Session export', 'data/google_exports/numbers_per_session_1dfke_latest.xlsx', 'operational', 'session_rollup'),
             'market': market,
             'date': latest,
-            'team': 'Unassigned / source pending',
+            'team': 'Ops / Unassigned',
             'finalRegistrations': regs,
             'finalAttendees': attended,
             'finalDeals': deals,
@@ -300,7 +494,7 @@ def generate():
             location = venue or area or address or market
             event_id = safe_id('schedule', market, route, team_key, date, str(source_row))
             schedule.append({
-                **meta('schedule_adapter', 'Upcoming schedule export', 'data/google_exports/upcoming_schedule_1F05mJ_2026-04-28.xlsx', 'operational', 'upcoming_schedule'),
+                **meta('schedule_adapter', 'Upcoming schedule export', 'data/google_exports/upcoming_schedule_1F05mJ_latest.xlsx', 'operational', 'upcoming_schedule'),
                 'id': event_id,
                 'market': market,
                 'route': route,
@@ -329,6 +523,17 @@ def generate():
                 'notes': 'Parsed from TLWB/MO Schedule route block; team normalized by generator.',
             })
 
+    for event in schedule:
+        for (market_key, start_date), (override_key, override_team) in ACTIVE_PREVIEW_TEAM_OVERRIDES.items():
+            start_dt = datetime.fromisoformat(start_date).date()
+            event_dt = datetime.fromisoformat(event["startDate"]).date()
+            in_route_window = start_dt <= event_dt <= start_dt + timedelta(days=7)
+            if normalize_market_key(event["market"]) == market_key and in_route_window:
+                event["teamKey"] = override_key
+                event["team"] = override_team
+                event["owner"] = override_team
+                event["notes"] = f"{event.get('notes', '')} Active preview source override: live Slack posts are in #{override_key.split('-')[0]}.".strip()
+
     route_groups = defaultdict(list)
     for event in schedule:
         route_groups[(event['market'], event['route'], event['teamKey'])].append(event)
@@ -354,7 +559,7 @@ def generate():
             statuses = {e['state'] for e in run_events}
             status = 'active' if 'active' in statuses else 'upcoming' if 'upcoming' in statuses else 'historical'
             schedule_route_blocks.append({
-                **meta('schedule_adapter', 'Upcoming schedule export', 'data/google_exports/upcoming_schedule_1F05mJ_2026-04-28.xlsx', 'operational', 'schedule_route_block'),
+                **meta('schedule_adapter', 'Upcoming schedule export', 'data/google_exports/upcoming_schedule_1F05mJ_latest.xlsx', 'operational', 'schedule_route_block'),
                 'id': safe_id('route', market, route, team_key, start_date, end_date, str(run_index)),
                 'market': market,
                 'route': route,
@@ -369,6 +574,16 @@ def generate():
                 'sourceSheet': 'FE Venue Booking Status',
                 'sourceRows': [e['sourceRow'] for e in run_events],
             })
+
+    workshop_schedule_rows = list(workshop_schedule_wb.rows('2026 Schedule'))
+    workshop_schedule_blocks, workshop_schedule_events = parse_workshop_schedule_rows(workshop_schedule_rows)
+    future_workshop_cutoff = datetime.now(TZ).date() + timedelta(days=7)
+    if not any(datetime.fromisoformat(block['startDate']).date() > future_workshop_cutoff for block in workshop_schedule_blocks):
+        raise RuntimeError(
+            'Workshop Team Scheduling has no parsed workshops more than seven days ahead; '
+            'refusing to publish a schedule that stops after the current weekend.'
+        )
+    schedule.extend(workshop_schedule_events)
 
     # Market forecasting gives active preview marketing/forecast stats.
     tracker = []
@@ -406,7 +621,7 @@ def generate():
         market_ops.append({
             **meta('market_comparisons_adapter', 'Market Comparisons / Forecasting', 'data/lindsey_shared_2026-04-25/Market_Comparisons.xlsx', 'analytic', 'active_forecast'),
             'mode': 'preview',
-            'team': 'Team/source pending',
+            'team': 'Team not listed in source',
             'market': market,
             'date': excel_date(row[3]) or excel_date(row[2]) or excel_date(row[1]),
             'status': 'active',
@@ -442,7 +657,7 @@ def generate():
         market_ops.append({
             **meta('market_comparisons_adapter', 'Market Comparisons / Completed Markets', 'data/lindsey_shared_2026-04-25/Market_Comparisons.xlsx', 'analytic', 'prior_market_comparison'),
             'mode': 'preview',
-            'team': 'Prior team/source pending',
+            'team': 'Prior team not listed in source',
             'market': market,
             'date': excel_date(row[3]) or excel_date(row[2]) or excel_date(row[1]),
             'status': 'last_completed',
@@ -461,6 +676,7 @@ def generate():
 
     # Workshop/PV sales tracker. PV rows augment preview final/ME-confirmed; WS rows drive workshop page.
     team_kpis = []
+    middle_end_workshop_blocks = []
     speaker = defaultdict(lambda: {'gross': 0, 'bu': 0, 'collectedQuality': 0})
     for i, row in enumerate(ws_wb.rows('2026 Event Breakdown')):
         if i == 0 or len(row) < 13:
@@ -479,7 +695,7 @@ def generate():
         quarter = clean(row[10]) or '2026'
         period = 'ytd'
         team_kpis.append({
-            **meta('lindsey_dashboard_adapter', '2026 WS Sales Tracker', 'data/lindsey_shared_2026-04-25/2026_WS_Sales_Tracker.xlsx', 'tracker', 'sales_tracker'),
+            **meta('lindsey_dashboard_adapter', '2026 WS Sales Tracker', 'data/google_exports/ws_sales_tracker_1CmJ_latest.xlsx', 'tracker', 'sales_tracker'),
             'periodLabel': quarter,
             'periodType': period,
             'team': spk,
@@ -504,8 +720,28 @@ def generate():
         speaker[spk]['collectedQuality'] += max(0, gross - cancels)
         if ' WS ' in event or ' WS' in event:
             market_name = re.sub(r'\s*WS.*$', '', event).strip()
+            date_range = parse_2026_event_range(event)
+            speaker_key, speaker_team = normalize_team(spk)
+            if date_range:
+                start_date, end_date = date_range
+                middle_end_workshop_blocks.append({
+                    **meta('ws_sales_tracker_schedule_supplement', '2026 WS Sales Tracker schedule supplement', 'data/google_exports/ws_sales_tracker_1CmJ_latest.xlsx', 'operational', 'middle_end_schedule_supplement'),
+                    'id': safe_id('me-workshop', market_name, speaker_team, start_date, end_date, str(i + 1)),
+                    'market': market_name,
+                    'route': 'Middle-End Workshop',
+                    'team': speaker_team if speaker_key != 'ops' else f'{spk} / speaker',
+                    'teamKey': speaker_key if speaker_key != 'ops' else safe_id(spk),
+                    'status': route_status(start_date, end_date),
+                    'startDate': start_date,
+                    'endDate': end_date,
+                    'eventCount': 1,
+                    'areas': [market_name],
+                    'venues': ['venue pending'],
+                    'sourceSheet': '2026 Event Breakdown',
+                    'sourceRows': [i + 1],
+                })
             market_ops.append({
-                **meta('lindsey_dashboard_adapter', '2026 WS Sales Tracker', 'data/lindsey_shared_2026-04-25/2026_WS_Sales_Tracker.xlsx', 'tracker', 'workshop_sales'),
+                **meta('lindsey_dashboard_adapter', '2026 WS Sales Tracker', 'data/google_exports/ws_sales_tracker_1CmJ_latest.xlsx', 'tracker', 'workshop_sales'),
                 'mode': 'workshop',
                 'team': spk,
                 'market': market_name,
@@ -525,7 +761,7 @@ def generate():
         if vals['bu'] <= 0 and vals['gross'] <= 0:
             continue
         speaker_benchmarks.append({
-            **meta('speaker_benchmark_adapter', '2026 WS Sales Tracker speaker rollup', 'data/lindsey_shared_2026-04-25/2026_WS_Sales_Tracker.xlsx', 'analytic', 'speaker_rollup'),
+            **meta('speaker_benchmark_adapter', '2026 WS Sales Tracker speaker rollup', 'data/google_exports/ws_sales_tracker_1CmJ_latest.xlsx', 'analytic', 'speaker_rollup'),
             'speaker': spk,
             'grossMonetization': vals['gross'],
             'balancedScore': vals['gross'] / max(vals['bu'], 1),
@@ -535,9 +771,64 @@ def generate():
             'collectedQuality': vals['collectedQuality'],
         })
 
-    # De-duplicate/sort, keep pages readable.
-    schedule = sorted(schedule, key=lambda r: r['startDate'])[:400]
-    schedule_route_blocks = sorted(schedule_route_blocks, key=lambda r: r['startDate'])[:200]
+    expo_blocks = [{
+        **meta('slack_expo_schedule_supplement', 'Slack #expo post-event reset', 'slack://channel/expo', 'operational', 'expo_schedule_supplement'),
+        'id': 'expo-may-investor-2026-05-29',
+        'market': 'May Investor Expo',
+        'route': 'Investor Expo',
+        'team': 'Expo',
+        'teamKey': 'expo',
+        'status': 'historical',
+        'startDate': '2026-05-29',
+        'endDate': '2026-05-29',
+        'eventCount': 1,
+        'areas': ['Expo'],
+        'venues': ['Completed; next Expo count pending'],
+        'sourceSheet': 'Slack #expo post-event reset',
+        'sourceRows': [1],
+    }]
+
+    today_iso = datetime.now(TZ).date().isoformat()
+    historical_tracker_workshops = [
+        block for block in middle_end_workshop_blocks
+        if block['endDate'] < today_iso
+    ]
+    schedule_route_blocks.extend(historical_tracker_workshops)
+    schedule_route_blocks.extend(workshop_schedule_blocks)
+    schedule_route_blocks.extend(expo_blocks)
+
+    # Keep the full operational year plus ME supplements. The prior 400-record
+    # cap silently dropped late-year/future workshop rows after sorting by date.
+    schedule = sorted(schedule, key=lambda r: r['startDate'])[:1000]
+    status_rank = {'active': 0, 'upcoming': 1, 'historical': 2, 'reference': 3}
+    schedule_route_blocks = sorted(schedule_route_blocks, key=lambda r: (status_rank.get(r['status'], 9), r['startDate']))[:200]
+    SCHEDULE_JSON_OUT.parent.mkdir(parents=True, exist_ok=True)
+    SCHEDULE_JSON_OUT.write_text(json.dumps({
+        'generated_at': FETCHED,
+        'timezone': 'America/Denver',
+        'source': {
+            'source_id': 'upcoming_schedule',
+            'source_name': 'TLWB/MO Schedule sheet',
+            'source_type': 'google_sheet',
+            'source_family': 'schedule',
+            'trust_role': 'schedule_truth',
+            'sheet_id': '1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY',
+            'parser': 'scripts/generate-live-data-review.py::FE Venue Booking Status parser',
+            'expected_cadence': {
+                'operational_schedule': '24h while routes are current/upcoming',
+                'route_blocks': '24h while routes are current/upcoming',
+                'historical': 'neutral/fine after route completion unless source check fails',
+            },
+        },
+        'sections': {
+            'preview_routes': [block for block in schedule_route_blocks if block['route'] and block['teamKey'] in {'wayne-gray', 'vogel-cord', 'dent', 'wyman', 'megan'}],
+            'middle_end_workshop_routes': [block for block in schedule_route_blocks if block.get('sourceRole') == 'middle_end_schedule_supplement'],
+            'expo': [block for block in schedule_route_blocks if block.get('sourceRole') == 'expo_schedule_supplement'],
+            'upcoming_events': [block for block in schedule_route_blocks if block['status'] in {'active', 'upcoming'}],
+        },
+        'records': schedule,
+        'route_blocks': schedule_route_blocks,
+    }, indent=2) + "\n")
     sessions = sorted(sessions, key=lambda r: (r['date'], r['market'], r['sessionNumber']), reverse=True)
     market_ops = market_ops[:500]
     team_kpis = team_kpis[:500]
@@ -560,6 +851,7 @@ def generate():
         "export const generatedDashboardData: DashboardDataset = " + json.dumps(data, indent=2) + " as DashboardDataset;\n"
     )
     print(f"Wrote {OUT}")
+    print(f"Wrote {SCHEDULE_JSON_OUT}")
     print({k: len(v) for k, v in data.items()})
 
 

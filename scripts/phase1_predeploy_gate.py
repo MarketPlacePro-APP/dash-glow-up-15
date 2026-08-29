@@ -24,7 +24,7 @@ TLWB_PAGE_ADAPTERS = APP_ROOT / "src" / "data" / "tlwbPageAdapters.ts"
 EXEC_ADAPTERS = APP_ROOT / "src" / "data" / "executiveAdapters.ts"
 PHASE_SCRIPT = APP_ROOT / "scripts" / "phase1_freshness_spine.py"
 TZ = ZoneInfo("America/Denver")
-REQUIRED = ["teamdrecksel", "teamtony", "teamnick", "teamshaw", "teamwayne", "teamdent", "teamwyman", "teamvogel", "eventstats", "expo"]
+REQUIRED = ["teamdrecksel", "teamtony", "teamnick", "teamshaw", "teamwayne", "teamdent", "teamwyman", "teamvogel", "teammillar", "eventstats", "expo"]
 OPTIONAL = [
     "front-end-team",
     "ticketsales",

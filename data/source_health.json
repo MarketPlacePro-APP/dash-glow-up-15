@@ -1,0 +1,781 @@
+{
+  "generated_at": "2026-08-29T08:07:47-06:00",
+  "timezone": "America/Denver",
+  "build_timestamp": "2026-08-29T08:07:47-06:00",
+  "git_sha": "24de2f1",
+  "deploy_id": null,
+  "source": {
+    "control_plane": "tlwb_source_archive.db",
+    "runtime_rule": "Vercel runtime reads only committed static artifacts; no SQLite/cross-workspace runtime reads."
+  },
+  "required_channels": [
+    "teamdrecksel",
+    "teamtony",
+    "teamnick",
+    "teamshaw",
+    "teamwayne",
+    "teamdent",
+    "teamwyman",
+    "teamvogel",
+    "teammillar",
+    "eventstats",
+    "expo"
+  ],
+  "optional_channels": [
+    "front-end-team",
+    "ticketsales",
+    "collections-allteams",
+    "refunds-allteams",
+    "fe-confirmations-team"
+  ],
+  "channel_aliases": {
+    "teamvogal": "teamvogel"
+  },
+  "rows": [
+    {
+      "page": "Executive",
+      "section": "Expo count",
+      "sources": [
+        "slack:#expo"
+      ],
+      "source_location": "Slack #expo \u2014 https://app.slack.com/client (TLWB workspace)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.526365-06:00",
+      "latest_source_post_date": "2026-08-27T11:13:27.813319-06:00",
+      "latest_data_date": "2026-08-27",
+      "rendered_values": "BU 129, Guests 72, UTL 7, TLWB 95, KeySpire 0, Total 201",
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: expo.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: expo."
+    },
+    {
+      "page": "Executive",
+      "section": "Active preview pace",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar"
+      ],
+      "source_location": "Slack #teamwayne \u2014 FE preview team channel \u00b7 Slack #teamdent \u2014 FE preview team channel \u00b7 Slack #teamvogel \u2014 FE preview team channel \u00b7 Slack #teammillar \u2014 FE preview team channel",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525059-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "rows_seen": 320,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Executive",
+      "section": "Completed ME show-rate groups",
+      "sources": [
+        "slack:#teamtony",
+        "slack:#teamshaw",
+        "slack:#teamnick",
+        "slack:#teamdrecksel"
+      ],
+      "source_location": "Slack #teamtony \u2014 ME workshop team channel \u00b7 Slack #teamshaw \u2014 ME workshop team channel; includes Megan \u00b7 Slack #teamnick \u2014 ME workshop team channel \u00b7 Slack #teamdrecksel (Team Drexel) \u2014 ME workshop team channel",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525059-06:00",
+      "latest_source_post_date": "2026-08-28T12:08:41.027329-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": "Boise, ID (Team Nick \u00b7 Speaker Nick): preview sold 31, shown BU 30, ME sold 11 | Grand Rapids, MI (Team Tony \u00b7 Speaker Tony): preview sold 39, shown BU 33, ME sold 17 | Chicago, IL (Team Tony \u00b7 Speaker Tony): preview sold 56, shown BU 51, ME sold 22 | Denver, CO (Team Drecksel \u00b7 Speaker Drecksel): preview sold 31, shown BU 26, ME sold 11 | Indianapolis, IN (Team Shaw \u00b7 Speaker Shaw): preview sold 45, shown BU 43, ME sold 18 | Hartford, CT (Team Tony \u00b7 Speaker Tony): preview sold 56, shown BU 52, ME sold 23",
+      "rows_seen": 320,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: teamnick.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamnick."
+    },
+    {
+      "page": "Executive",
+      "section": "Current upcoming ME pipeline",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar",
+        "google_sheet:workshop_team_schedule"
+      ],
+      "source_location": "Slack #teamwayne \u2014 FE preview team channel \u00b7 Slack #teamdent \u2014 FE preview team channel \u00b7 Slack #teamvogel \u2014 FE preview team channel \u00b7 Slack #teammillar \u2014 FE preview team channel \u00b7 Google Sheet: Workshop Team Scheduling (1psHz1be5AdbpjLu4vWEIvecf6CLeuRWodBoHu20Dotw)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525059-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": "Ann Arbor, MI (Team Vogel / #teamvogel -> Team Tony): preview sold 50, projected BU 51, ME sold null, source 2026-08-28T08:30:29.317829-06:00 | Raleigh, NC (Team Wayne / #teamwayne -> Team Shaw): preview sold 35, projected BU 35, ME sold null, source 2026-08-28T08:38:56.181799-06:00 | Sacramento (Team Vogel / #teamvogel -> Team Drexel): preview sold 34, projected BU 27, ME sold null, source 2026-08-28T11:30:09.241479-06:00 | Fremont, CA (Pending preview source -> Team Tony): preview sold null, projected BU null, ME sold null, source 2026-08-29T08:07:21-06:00",
+      "rows_seen": 320,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Executive",
+      "section": "Active marketing",
+      "sources": [
+        "slack:#eventstats"
+      ],
+      "source_location": "Slack #eventstats \u2014 marketing spend/registration posts",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525059-06:00",
+      "latest_source_post_date": "2026-08-28T11:45:53.860799-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Successful check and latest source is within 24h expected cadence.",
+      "blocker": null
+    },
+    {
+      "page": "Marketing",
+      "section": "Active markets",
+      "sources": [
+        "slack:#eventstats"
+      ],
+      "source_location": "Slack #eventstats \u2014 marketing spend/registration posts",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525059-06:00",
+      "latest_source_post_date": "2026-08-28T11:45:53.860799-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Successful check and latest source is within 24h expected cadence.",
+      "blocker": null
+    },
+    {
+      "page": "Marketing",
+      "section": "Historical market comparisons",
+      "sources": [
+        "slack:#eventstats"
+      ],
+      "source_location": "Slack #eventstats \u2014 marketing spend/registration posts",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:38.339555-06:00",
+      "latest_source_post_date": "2026-08-28T11:45:53.860799-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Successful check and latest source is within 24h expected cadence.",
+      "blocker": null
+    },
+    {
+      "page": "Preview",
+      "section": "Current Preview Markets",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar"
+      ],
+      "source_location": "Slack #teamwayne \u2014 FE preview team channel \u00b7 Slack #teamdent \u2014 FE preview team channel \u00b7 Slack #teamvogel \u2014 FE preview team channel \u00b7 Slack #teammillar \u2014 FE preview team channel",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525059-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "rows_seen": 320,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Preview",
+      "section": "Session Breakdown",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar"
+      ],
+      "source_location": "Slack #teamwayne \u2014 FE preview team channel \u00b7 Slack #teamdent \u2014 FE preview team channel \u00b7 Slack #teamvogel \u2014 FE preview team channel \u00b7 Slack #teammillar \u2014 FE preview team channel",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525059-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "rows_seen": 320,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Preview",
+      "section": "Recent final routes",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamvogel",
+        "slack:#teammillar",
+        "slack:#teamdent"
+      ],
+      "source_location": "Slack #teamwayne \u2014 FE preview team channel \u00b7 Slack #teamvogel \u2014 FE preview team channel \u00b7 Slack #teammillar \u2014 FE preview team channel \u00b7 Slack #teamdent \u2014 FE preview team channel",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525059-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "rows_seen": 320,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "completed",
+      "expected_cadence": "72h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: teammillar, teamdent.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teammillar, teamdent."
+    },
+    {
+      "page": "Preview",
+      "section": "Team historical performance",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamwyman",
+        "slack:#teamvogel"
+      ],
+      "source_location": "Slack #teamwayne \u2014 FE preview team channel \u00b7 Slack #teamdent \u2014 FE preview team channel \u00b7 Slack #teamwyman \u2014 FE preview team channel \u00b7 Slack #teamvogel \u2014 FE preview team channel",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525819-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "rows_seen": 320,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "completed",
+      "expected_cadence": "24h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teamwyman.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teamwyman."
+    },
+    {
+      "page": "Preview",
+      "section": "Coverage requirement: Team Wyman",
+      "sources": [
+        "slack:#teamwyman"
+      ],
+      "source_location": "Slack #teamwyman \u2014 FE preview team channel",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525059-06:00",
+      "latest_source_post_date": "2026-05-19T11:39:24.244169-06:00",
+      "latest_data_date": "2026-05-19",
+      "rendered_values": null,
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "coverage_requirement",
+      "expected_cadence": "24h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: teamwyman.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamwyman."
+    },
+    {
+      "page": "Workshop / ME",
+      "section": "Current or Just Completed",
+      "sources": [
+        "slack:#teamtony",
+        "slack:#teamshaw",
+        "slack:#teamnick",
+        "slack:#teamdrecksel"
+      ],
+      "source_location": "Slack #teamtony \u2014 ME workshop team channel \u00b7 Slack #teamshaw \u2014 ME workshop team channel; includes Megan \u00b7 Slack #teamnick \u2014 ME workshop team channel \u00b7 Slack #teamdrecksel (Team Drexel) \u2014 ME workshop team channel",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525819-06:00",
+      "latest_source_post_date": "2026-08-28T12:08:41.027329-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "rows_seen": 320,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: teamnick.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamnick."
+    },
+    {
+      "page": "Workshop / ME",
+      "section": "Historical ME performance",
+      "sources": [
+        "slack:#teamtony",
+        "slack:#teamshaw",
+        "slack:#teamnick",
+        "slack:#teamdrecksel"
+      ],
+      "source_location": "Slack #teamtony \u2014 ME workshop team channel \u00b7 Slack #teamshaw \u2014 ME workshop team channel; includes Megan \u00b7 Slack #teamnick \u2014 ME workshop team channel \u00b7 Slack #teamdrecksel (Team Drexel) \u2014 ME workshop team channel",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525819-06:00",
+      "latest_source_post_date": "2026-08-28T12:08:41.027329-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "rows_seen": 320,
+      "new_rows_since_last_check": 0,
+      "status": "yellow",
+      "schedule_state": "completed",
+      "expected_cadence": "24h",
+      "notes": "Checked, but not every mapped source has a fresh positive assertion: teamnick.",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamnick."
+    },
+    {
+      "page": "Executive",
+      "section": "Upcoming route blocks",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "rows_seen": 200,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Successful check and latest source is within 24h expected cadence.",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Calendar and route blocks",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "rows_seen": 622,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Schedule artifact parsed from TLWB/MO Schedule; current/upcoming route blocks sort first.",
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Operational source ledger",
+      "sources": [
+        "data:source_health.json",
+        "data:schedule.json"
+      ],
+      "source_location": "Local build artifact: data/source_health.json + data/schedule.json",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:47-06:00",
+      "latest_data_date": null,
+      "rendered_values": null,
+      "rows_seen": 16,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "current",
+      "expected_cadence": "each build",
+      "notes": "Rendered from committed static artifacts, not runtime SQLite.",
+      "blocker": null
+    },
+    {
+      "page": "Inside Sales",
+      "section": "DPL and collections",
+      "sources": [
+        "api:inside_replit_latest",
+        "api:collections_replit_latest"
+      ],
+      "source_location": "Replit API: utltlwb-stats.replit.app/api/tlwb/inside-sales-dpl \u00b7 Replit API: utltlwb-stats.replit.app/api/tlwb/collections-performance",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:37.525819-06:00",
+      "latest_source_post_date": "2026-08-29T08:06:40.188250-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "rows_seen": 1,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "current",
+      "expected_cadence": "24h",
+      "notes": "Replit exports refreshed 0h ago.",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Raleigh, NC / Team Shaw",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "rows_seen": 3,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "active",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "active route from TLWB/MO Schedule; rows [5, 6, 24].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Ann Arbor, MI / Team Tony",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "rows_seen": 3,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "active",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "active route from TLWB/MO Schedule; rows [30, 31, 48].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Sacramento / Team Drexel",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "rows_seen": 3,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "active",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "active route from TLWB/MO Schedule; rows [54, 55, 73].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Atlanta / Team Wayne/Gray",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "rows_seen": 6,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "active",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "active route from TLWB/MO Schedule; rows [539, 540, 541, 542, 543, 544].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: White Plains / Team Vogel/Cord",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "rows_seen": 7,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "active",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "active route from TLWB/MO Schedule; rows [546, 547, 548, 549, 550, 551, 552].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Fremont, CA / Team Tony",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-03",
+      "rendered_values": null,
+      "rows_seen": 3,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "upcoming",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "upcoming route from TLWB/MO Schedule; rows [5, 6, 24].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Greenville, SC / Team Drexel",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-03",
+      "rendered_values": null,
+      "rows_seen": 3,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "upcoming",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "upcoming route from TLWB/MO Schedule; rows [30, 31, 48].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Little Rock, AR / Team Nick",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-03",
+      "rendered_values": null,
+      "rows_seen": 3,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "upcoming",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "upcoming route from TLWB/MO Schedule; rows [54, 55, 73].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Newark / Team Vogel/Cord",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-09",
+      "rendered_values": null,
+      "rows_seen": 6,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "upcoming",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "upcoming route from TLWB/MO Schedule; rows [554, 555, 556, 557, 558, 559].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Richmond / Team Vogel/Cord",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-09",
+      "rendered_values": null,
+      "rows_seen": 6,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "upcoming",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "upcoming route from TLWB/MO Schedule; rows [561, 562, 563, 564, 565, 566].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Baltimore / Team Wayne/Gray",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-09",
+      "rendered_values": null,
+      "rows_seen": 5,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "upcoming",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "upcoming route from TLWB/MO Schedule; rows [568, 569, 570, 571, 572].",
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Portland / Team Tony",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "source_location": "Google Sheet: TLWB/MO Schedule (1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY)",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": "2026-08-29T08:07:39.012031-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-11",
+      "rendered_values": null,
+      "rows_seen": 3,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "upcoming",
+      "expected_cadence": "24h while current/upcoming",
+      "notes": "upcoming route from TLWB/MO Schedule; rows [5, 6, 24].",
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Optional coverage: #front-end-team",
+      "sources": [
+        "slack:#front-end-team"
+      ],
+      "source_location": "Slack #front-end-team",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": null,
+      "latest_source_post_date": "2026-08-21T19:22:31.235259-06:00",
+      "latest_data_date": null,
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "coverage_requirement",
+      "expected_cadence": "not blocking",
+      "notes": "Optional channel is live-readable (ok_no_new_expected); retained as non-blocking supplemental coverage.",
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Optional coverage: #ticketsales",
+      "sources": [
+        "slack:#ticketsales"
+      ],
+      "source_location": "Slack #ticketsales",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": null,
+      "latest_source_post_date": "2026-08-25T09:14:53.619019-06:00",
+      "latest_data_date": null,
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "coverage_requirement",
+      "expected_cadence": "not blocking",
+      "notes": "Optional channel is live-readable (ok_no_new_expected); retained as non-blocking supplemental coverage.",
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Optional coverage: #collections-allteams",
+      "sources": [
+        "slack:#collections-allteams"
+      ],
+      "source_location": "Slack #collections-allteams",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": null,
+      "latest_source_post_date": "2026-08-28T20:49:38.497639-06:00",
+      "latest_data_date": null,
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "coverage_requirement",
+      "expected_cadence": "not blocking",
+      "notes": "Optional channel is live-readable (ok_fresh); retained as non-blocking supplemental coverage.",
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Optional coverage: #refunds-allteams",
+      "sources": [
+        "slack:#refunds-allteams"
+      ],
+      "source_location": "Slack #refunds-allteams",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": null,
+      "latest_source_post_date": "2026-08-28T17:03:39.712059-06:00",
+      "latest_data_date": null,
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "coverage_requirement",
+      "expected_cadence": "not blocking",
+      "notes": "Optional channel is live-readable (ok_fresh); retained as non-blocking supplemental coverage.",
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Optional coverage: #fe-confirmations-team",
+      "sources": [
+        "slack:#fe-confirmations-team"
+      ],
+      "source_location": "Slack #fe-confirmations-team",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": null,
+      "latest_source_post_date": "2026-08-28T11:15:58.709239-06:00",
+      "latest_data_date": null,
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "coverage_requirement",
+      "expected_cadence": "not blocking",
+      "notes": "Optional channel is live-readable (ok_fresh); retained as non-blocking supplemental coverage.",
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Coverage requirement: Megan",
+      "sources": [
+        "slack:#teamshaw",
+        "coverage_requirement:megan"
+      ],
+      "source_location": "Slack #teamshaw \u2014 Megan is Team Shaw",
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "last_synced": null,
+      "latest_source_post_date": "2026-08-28T10:02:26.853779-06:00",
+      "latest_data_date": null,
+      "rows_seen": 80,
+      "new_rows_since_last_check": 0,
+      "status": "green",
+      "schedule_state": "coverage_requirement",
+      "expected_cadence": "covered by required #teamshaw hourly check",
+      "notes": "Megan confirmed as Team Shaw; covered by required #teamshaw check (ok_fresh).",
+      "blocker": null
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-08-29T08:07:38.393552-06:00",
+  "source": "/Users/seanwilliams/.openclaw/workspace-main/logs/tlwb-kpi-refresh/slack-source-20260829-080555.txt",
+  "source_market_count": 11,
+  "source_markets": [
+    "Charlotte",
+    "Portland",
+    "St. Louis",
+    "Atlanta",
+    "White Plains",
+    "Baltimore",
+    "Newark",
+    "Richmond",
+    "Norfolk",
+    "Philadelphia",
+    "Washington DC"
+  ],
+  "marketing_market_count": 11,
+  "preview_market_count": 14,
+  "missing_marketing": [],
+  "missing_preview": [],
+  "missing_history": [],
+  "extra_marketing": [],
+  "status": "ok",
+  "issues": []
+}

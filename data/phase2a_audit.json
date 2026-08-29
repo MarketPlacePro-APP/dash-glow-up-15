@@ -1,0 +1,1862 @@
+{
+  "phase": "2A",
+  "generated_at": "2026-08-29T08:07:47-06:00",
+  "timezone": "America/Denver",
+  "source": {
+    "control_plane": "/Users/seanwilliams/.openclaw/workspace/outputs/tlwb_source_archive.db",
+    "runtime_rule": "Dashboard runtime reads static phase2a_audit.json; refresh job writes SQLite normalized rows first."
+  },
+  "counts": {
+    "event_roster": 30,
+    "metric_rows": 78,
+    "freshness_rows": 36,
+    "fail_closed_sections": 10
+  },
+  "event_roster": [
+    {
+      "event_id": "preview_atlanta_2026-08-29",
+      "market_name": "Atlanta",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Wayne/Gray / #eventstats",
+      "start_date": "2026-08-29",
+      "end_date": "2026-08-26",
+      "source_id": "slack_channel_eventstats",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_atlanta_2026-08-29",
+      "source_posted_at": "2026-08-26T20:10:02.069079-06:00",
+      "status": "yellow",
+      "source_state": "pending_source",
+      "metrics": {
+        "registered": 1347.0,
+        "attended_cutoff": 0.0,
+        "sales": 0.0,
+        "sessions_completed": null,
+        "total_sessions": null
+      }
+    },
+    {
+      "event_id": "preview_portland_2026-08-22",
+      "market_name": "Portland",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Vogel \u00b7 Speaker Tony / #teamvogel",
+      "start_date": "2026-08-22",
+      "end_date": "2026-08-25",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_portland_2026-08-22",
+      "source_posted_at": "2026-08-25T21:33:23.468589-06:00",
+      "status": "yellow",
+      "source_state": "final_route_totals",
+      "metrics": {
+        "registered": 738.0,
+        "attended_cutoff": 70.0,
+        "sales": 24.0,
+        "sessions_completed": null,
+        "total_sessions": null
+      }
+    },
+    {
+      "event_id": "preview_charlotte_2026-08-22",
+      "market_name": "Charlotte",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Millar \u00b7 Speaker Jay / #teammillar",
+      "start_date": "2026-08-22",
+      "end_date": "2026-08-25",
+      "source_id": "slack_channel_teammillar",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_charlotte_2026-08-22",
+      "source_posted_at": "2026-08-25T18:48:45.599939-06:00",
+      "status": "yellow",
+      "source_state": "final_route_totals",
+      "metrics": {
+        "registered": 991.0,
+        "attended_cutoff": 159.0,
+        "sales": 40.0,
+        "sessions_completed": null,
+        "total_sessions": null
+      }
+    },
+    {
+      "event_id": "preview_san_francisco_california_2026-08-15",
+      "market_name": "San Francisco, California",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Vogel \u00b7 Speaker Tony / #teamvogel",
+      "start_date": "2026-08-15",
+      "end_date": "2026-08-19",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_san_francisco_california_2026-08-15",
+      "source_posted_at": "2026-08-19T21:56:44.512629-06:00",
+      "status": "yellow",
+      "source_state": "final_route_totals",
+      "metrics": {
+        "registered": 1106.0,
+        "attended_cutoff": 124.0,
+        "sales": 58.0,
+        "sessions_completed": null,
+        "total_sessions": null
+      }
+    },
+    {
+      "event_id": "preview_little_rock_2026-08-15",
+      "market_name": "Little Rock",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Gray \u00b7 Speaker Nick / #teamwayne",
+      "start_date": "2026-08-15",
+      "end_date": "2026-08-18",
+      "source_id": "slack_channel_teamwayne",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_little_rock_2026-08-15",
+      "source_posted_at": "2026-08-18T19:44:44.962649-06:00",
+      "status": "yellow",
+      "source_state": "final_route_totals",
+      "metrics": {
+        "registered": 1047.0,
+        "attended_cutoff": 146.0,
+        "sales": 40.0,
+        "sessions_completed": null,
+        "total_sessions": null
+      }
+    },
+    {
+      "event_id": "preview_greenville_2026-08-15",
+      "market_name": "Greenville",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Dent \u00b7 Speaker Jay / #teamdent",
+      "start_date": "2026-08-15",
+      "end_date": "2026-08-18",
+      "source_id": "slack_channel_teamdent",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_greenville_2026-08-15",
+      "source_posted_at": "2026-08-18T18:46:47.777929-06:00",
+      "status": "yellow",
+      "source_state": "final_route_totals",
+      "metrics": {
+        "registered": 885.0,
+        "attended_cutoff": 157.0,
+        "sales": 27.0,
+        "sessions_completed": null,
+        "total_sessions": null
+      }
+    },
+    {
+      "event_id": "middle_end_boise_id_2026-08-23",
+      "market_name": "Boise, ID",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Nick \u00b7 Speaker Nick",
+      "start_date": "2026-08-23",
+      "end_date": "2026-08-23",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_boise_id_2026-08-23",
+      "status": "final",
+      "source_state": "Last week",
+      "label": "Final ME",
+      "metrics": {
+        "preview_sold": 31.0,
+        "buying_units_attended": 30.0,
+        "workshop_sales": 11.0
+      }
+    },
+    {
+      "event_id": "middle_end_grand_rapids_mi_2026-08-23",
+      "market_name": "Grand Rapids, MI",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Tony \u00b7 Speaker Tony",
+      "start_date": "2026-08-23",
+      "end_date": "2026-08-23",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_grand_rapids_mi_2026-08-23",
+      "status": "final",
+      "source_state": "Last week",
+      "label": "Final ME",
+      "metrics": {
+        "preview_sold": 39.0,
+        "buying_units_attended": 33.0,
+        "workshop_sales": 17.0
+      }
+    },
+    {
+      "event_id": "middle_end_chicago_il_2026-08-16",
+      "market_name": "Chicago, IL",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Tony \u00b7 Speaker Tony",
+      "start_date": "2026-08-16",
+      "end_date": "2026-08-16",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_chicago_il_2026-08-16",
+      "status": "final",
+      "source_state": "Last week",
+      "label": "Final ME",
+      "metrics": {
+        "preview_sold": 56.0,
+        "buying_units_attended": 51.0,
+        "workshop_sales": 22.0
+      }
+    },
+    {
+      "event_id": "middle_end_denver_co_2026-08-16",
+      "market_name": "Denver, CO",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Drecksel \u00b7 Speaker Drecksel",
+      "start_date": "2026-08-16",
+      "end_date": "2026-08-16",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_denver_co_2026-08-16",
+      "status": "final",
+      "source_state": "Last week",
+      "label": "Final ME",
+      "metrics": {
+        "preview_sold": 31.0,
+        "buying_units_attended": 26.0,
+        "workshop_sales": 11.0
+      }
+    },
+    {
+      "event_id": "middle_end_indianapolis_in_2026-08-16",
+      "market_name": "Indianapolis, IN",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Shaw \u00b7 Speaker Shaw",
+      "start_date": "2026-08-16",
+      "end_date": "2026-08-16",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_indianapolis_in_2026-08-16",
+      "status": "final",
+      "source_state": "Last week",
+      "label": "Final ME",
+      "metrics": {
+        "preview_sold": 45.0,
+        "buying_units_attended": 43.0,
+        "workshop_sales": 18.0
+      }
+    },
+    {
+      "event_id": "middle_end_hartford_ct_2026-08-02",
+      "market_name": "Hartford, CT",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Tony \u00b7 Speaker Tony",
+      "start_date": "2026-08-02",
+      "end_date": "2026-08-02",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_hartford_ct_2026-08-02",
+      "status": "final",
+      "source_state": "Last week",
+      "label": "Final ME",
+      "metrics": {
+        "preview_sold": 56.0,
+        "buying_units_attended": 52.0,
+        "workshop_sales": 23.0
+      }
+    },
+    {
+      "event_id": "upcoming_middle_end_ann_arbor_mi_2026-08-28",
+      "market_name": "Ann Arbor, MI",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Tony",
+      "preview_team": "Team Vogel / #teamvogel",
+      "start_date": "2026-08-28",
+      "end_date": "2026-08-30",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_ann_arbor_mi_2026-08-28",
+      "source_posted_at": "2026-08-28T08:30:29.317829-06:00",
+      "status": "upcoming",
+      "source_state": "pipeline",
+      "metrics": {
+        "preview_sold": 50.0,
+        "projected_buying_units": 51.0,
+        "middle_end_sold": null
+      }
+    },
+    {
+      "event_id": "upcoming_middle_end_raleigh_nc_2026-08-28",
+      "market_name": "Raleigh, NC",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Shaw",
+      "preview_team": "Team Wayne / #teamwayne",
+      "start_date": "2026-08-28",
+      "end_date": "2026-08-30",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_raleigh_nc_2026-08-28",
+      "source_posted_at": "2026-08-28T08:38:56.181799-06:00",
+      "status": "upcoming",
+      "source_state": "pipeline",
+      "metrics": {
+        "preview_sold": 35.0,
+        "projected_buying_units": 35.0,
+        "middle_end_sold": null
+      }
+    },
+    {
+      "event_id": "upcoming_middle_end_sacramento_2026-08-28",
+      "market_name": "Sacramento",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Drexel",
+      "preview_team": "Team Vogel / #teamvogel",
+      "start_date": "2026-08-28",
+      "end_date": "2026-08-30",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_sacramento_2026-08-28",
+      "source_posted_at": "2026-08-28T11:30:09.241479-06:00",
+      "status": "upcoming",
+      "source_state": "pipeline",
+      "metrics": {
+        "preview_sold": 34.0,
+        "projected_buying_units": 27.0,
+        "middle_end_sold": null
+      }
+    },
+    {
+      "event_id": "upcoming_middle_end_fremont_ca_2026-09-03",
+      "market_name": "Fremont, CA",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Tony",
+      "preview_team": "Pending preview source",
+      "start_date": "2026-09-03",
+      "end_date": "2026-09-05",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_fremont_ca_2026-09-03",
+      "source_posted_at": "2026-08-29T08:07:21-06:00",
+      "status": "upcoming",
+      "source_state": "pipeline",
+      "metrics": {
+        "preview_sold": null,
+        "projected_buying_units": null,
+        "middle_end_sold": null
+      }
+    },
+    {
+      "event_id": "upcoming_middle_end_greenville_sc_2026-09-03",
+      "market_name": "Greenville, SC",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Drexel",
+      "preview_team": "Team Dent / #teamdent",
+      "start_date": "2026-09-03",
+      "end_date": "2026-09-05",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_greenville_sc_2026-09-03",
+      "source_posted_at": "2026-08-29T08:07:21-06:00",
+      "status": "upcoming",
+      "source_state": "pipeline",
+      "metrics": {
+        "preview_sold": 28.0,
+        "projected_buying_units": null,
+        "middle_end_sold": null
+      }
+    },
+    {
+      "event_id": "upcoming_middle_end_little_rock_ar_2026-09-03",
+      "market_name": "Little Rock, AR",
+      "event_type": "middle_end",
+      "segment": "TLWB",
+      "team_name": "Team Nick",
+      "preview_team": "Team Wayne / #teamwayne",
+      "start_date": "2026-09-03",
+      "end_date": "2026-09-05",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_little_rock_ar_2026-09-03",
+      "source_posted_at": "2026-08-29T08:07:21-06:00",
+      "status": "upcoming",
+      "source_state": "pipeline",
+      "metrics": {
+        "preview_sold": 43.0,
+        "projected_buying_units": null,
+        "middle_end_sold": null
+      }
+    },
+    {
+      "event_id": "schedule_raleigh_nc_team_shaw_2026-08-28",
+      "market_name": "Raleigh, NC",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Shaw",
+      "start_date": "2026-08-28",
+      "end_date": "2026-08-30",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_raleigh_nc_team_shaw_2026-08-28",
+      "status": "active",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 1.0
+      }
+    },
+    {
+      "event_id": "schedule_ann_arbor_mi_team_tony_2026-08-28",
+      "market_name": "Ann Arbor, MI",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Tony",
+      "start_date": "2026-08-28",
+      "end_date": "2026-08-30",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_ann_arbor_mi_team_tony_2026-08-28",
+      "status": "active",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 1.0
+      }
+    },
+    {
+      "event_id": "schedule_sacramento_team_drexel_2026-08-28",
+      "market_name": "Sacramento",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Drexel",
+      "start_date": "2026-08-28",
+      "end_date": "2026-08-30",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_sacramento_team_drexel_2026-08-28",
+      "status": "active",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 1.0
+      }
+    },
+    {
+      "event_id": "schedule_atlanta_team_wayne_gray_2026-08-29",
+      "market_name": "Atlanta",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Wayne/Gray",
+      "start_date": "2026-08-29",
+      "end_date": "2026-09-02",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_atlanta_team_wayne_gray_2026-08-29",
+      "status": "active",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 6.0
+      }
+    },
+    {
+      "event_id": "schedule_white_plains_team_vogel_cord_2026-08-29",
+      "market_name": "White Plains",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Vogel/Cord",
+      "start_date": "2026-08-29",
+      "end_date": "2026-09-02",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_white_plains_team_vogel_cord_2026-08-29",
+      "status": "active",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 7.0
+      }
+    },
+    {
+      "event_id": "schedule_fremont_ca_team_tony_2026-09-03",
+      "market_name": "Fremont, CA",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Tony",
+      "start_date": "2026-09-03",
+      "end_date": "2026-09-05",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_fremont_ca_team_tony_2026-09-03",
+      "status": "upcoming",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 1.0
+      }
+    },
+    {
+      "event_id": "schedule_greenville_sc_team_drexel_2026-09-03",
+      "market_name": "Greenville, SC",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Drexel",
+      "start_date": "2026-09-03",
+      "end_date": "2026-09-05",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_greenville_sc_team_drexel_2026-09-03",
+      "status": "upcoming",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 1.0
+      }
+    },
+    {
+      "event_id": "schedule_little_rock_ar_team_nick_2026-09-03",
+      "market_name": "Little Rock, AR",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Nick",
+      "start_date": "2026-09-03",
+      "end_date": "2026-09-05",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_little_rock_ar_team_nick_2026-09-03",
+      "status": "upcoming",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 1.0
+      }
+    },
+    {
+      "event_id": "schedule_newark_team_vogel_cord_2026-09-09",
+      "market_name": "Newark",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Vogel/Cord",
+      "start_date": "2026-09-09",
+      "end_date": "2026-09-12",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_newark_team_vogel_cord_2026-09-09",
+      "status": "upcoming",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 6.0
+      }
+    },
+    {
+      "event_id": "schedule_richmond_team_vogel_cord_2026-09-09",
+      "market_name": "Richmond",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Vogel/Cord",
+      "start_date": "2026-09-09",
+      "end_date": "2026-09-12",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_richmond_team_vogel_cord_2026-09-09",
+      "status": "upcoming",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 6.0
+      }
+    },
+    {
+      "event_id": "schedule_baltimore_team_wayne_gray_2026-09-09",
+      "market_name": "Baltimore",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Wayne/Gray",
+      "start_date": "2026-09-09",
+      "end_date": "2026-09-12",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_baltimore_team_wayne_gray_2026-09-09",
+      "status": "upcoming",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 5.0
+      }
+    },
+    {
+      "event_id": "schedule_portland_team_tony_2026-09-11",
+      "market_name": "Portland",
+      "event_type": "preview",
+      "segment": "TLWB",
+      "team_name": "Team Tony",
+      "start_date": "2026-09-11",
+      "end_date": "2026-09-13",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_portland_team_tony_2026-09-11",
+      "status": "upcoming",
+      "source_state": "event_roster",
+      "metrics": {
+        "scheduled_sessions": 1.0
+      }
+    }
+  ],
+  "normalized_metrics": [
+    {
+      "event_id": "preview_atlanta_2026-08-29",
+      "metric_name": "registered",
+      "metric_value_num": 1347.0,
+      "grain": "market",
+      "source_id": "slack_channel_eventstats",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_atlanta_2026-08-29"
+    },
+    {
+      "event_id": "preview_atlanta_2026-08-29",
+      "metric_name": "attended_cutoff",
+      "metric_value_num": 0.0,
+      "grain": "market",
+      "source_id": "slack_channel_eventstats",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_atlanta_2026-08-29"
+    },
+    {
+      "event_id": "preview_atlanta_2026-08-29",
+      "metric_name": "sales",
+      "metric_value_num": 0.0,
+      "grain": "market",
+      "source_id": "slack_channel_eventstats",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_atlanta_2026-08-29"
+    },
+    {
+      "event_id": "preview_atlanta_2026-08-29",
+      "metric_name": "sessions_completed",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_eventstats",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_atlanta_2026-08-29"
+    },
+    {
+      "event_id": "preview_atlanta_2026-08-29",
+      "metric_name": "total_sessions",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_eventstats",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_atlanta_2026-08-29"
+    },
+    {
+      "event_id": "preview_portland_2026-08-22",
+      "metric_name": "registered",
+      "metric_value_num": 738.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_portland_2026-08-22"
+    },
+    {
+      "event_id": "preview_portland_2026-08-22",
+      "metric_name": "attended_cutoff",
+      "metric_value_num": 70.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_portland_2026-08-22"
+    },
+    {
+      "event_id": "preview_portland_2026-08-22",
+      "metric_name": "sales",
+      "metric_value_num": 24.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_portland_2026-08-22"
+    },
+    {
+      "event_id": "preview_portland_2026-08-22",
+      "metric_name": "sessions_completed",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_portland_2026-08-22"
+    },
+    {
+      "event_id": "preview_portland_2026-08-22",
+      "metric_name": "total_sessions",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_portland_2026-08-22"
+    },
+    {
+      "event_id": "preview_charlotte_2026-08-22",
+      "metric_name": "registered",
+      "metric_value_num": 991.0,
+      "grain": "market",
+      "source_id": "slack_channel_teammillar",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_charlotte_2026-08-22"
+    },
+    {
+      "event_id": "preview_charlotte_2026-08-22",
+      "metric_name": "attended_cutoff",
+      "metric_value_num": 159.0,
+      "grain": "market",
+      "source_id": "slack_channel_teammillar",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_charlotte_2026-08-22"
+    },
+    {
+      "event_id": "preview_charlotte_2026-08-22",
+      "metric_name": "sales",
+      "metric_value_num": 40.0,
+      "grain": "market",
+      "source_id": "slack_channel_teammillar",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_charlotte_2026-08-22"
+    },
+    {
+      "event_id": "preview_charlotte_2026-08-22",
+      "metric_name": "sessions_completed",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_teammillar",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_charlotte_2026-08-22"
+    },
+    {
+      "event_id": "preview_charlotte_2026-08-22",
+      "metric_name": "total_sessions",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_teammillar",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_charlotte_2026-08-22"
+    },
+    {
+      "event_id": "preview_san_francisco_california_2026-08-15",
+      "metric_name": "registered",
+      "metric_value_num": 1106.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_san_francisco_california_2026-08-15"
+    },
+    {
+      "event_id": "preview_san_francisco_california_2026-08-15",
+      "metric_name": "attended_cutoff",
+      "metric_value_num": 124.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_san_francisco_california_2026-08-15"
+    },
+    {
+      "event_id": "preview_san_francisco_california_2026-08-15",
+      "metric_name": "sales",
+      "metric_value_num": 58.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_san_francisco_california_2026-08-15"
+    },
+    {
+      "event_id": "preview_san_francisco_california_2026-08-15",
+      "metric_name": "sessions_completed",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_san_francisco_california_2026-08-15"
+    },
+    {
+      "event_id": "preview_san_francisco_california_2026-08-15",
+      "metric_name": "total_sessions",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_teamvogel",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_san_francisco_california_2026-08-15"
+    },
+    {
+      "event_id": "preview_little_rock_2026-08-15",
+      "metric_name": "registered",
+      "metric_value_num": 1047.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamwayne",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_little_rock_2026-08-15"
+    },
+    {
+      "event_id": "preview_little_rock_2026-08-15",
+      "metric_name": "attended_cutoff",
+      "metric_value_num": 146.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamwayne",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_little_rock_2026-08-15"
+    },
+    {
+      "event_id": "preview_little_rock_2026-08-15",
+      "metric_name": "sales",
+      "metric_value_num": 40.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamwayne",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_little_rock_2026-08-15"
+    },
+    {
+      "event_id": "preview_little_rock_2026-08-15",
+      "metric_name": "sessions_completed",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_teamwayne",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_little_rock_2026-08-15"
+    },
+    {
+      "event_id": "preview_little_rock_2026-08-15",
+      "metric_name": "total_sessions",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_teamwayne",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_little_rock_2026-08-15"
+    },
+    {
+      "event_id": "preview_greenville_2026-08-15",
+      "metric_name": "registered",
+      "metric_value_num": 885.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamdent",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_greenville_2026-08-15"
+    },
+    {
+      "event_id": "preview_greenville_2026-08-15",
+      "metric_name": "attended_cutoff",
+      "metric_value_num": 157.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamdent",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_greenville_2026-08-15"
+    },
+    {
+      "event_id": "preview_greenville_2026-08-15",
+      "metric_name": "sales",
+      "metric_value_num": 27.0,
+      "grain": "market",
+      "source_id": "slack_channel_teamdent",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_greenville_2026-08-15"
+    },
+    {
+      "event_id": "preview_greenville_2026-08-15",
+      "metric_name": "sessions_completed",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_teamdent",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_greenville_2026-08-15"
+    },
+    {
+      "event_id": "preview_greenville_2026-08-15",
+      "metric_name": "total_sessions",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": "slack_channel_teamdent",
+      "source_record_ref": "phase2a:activePreviewMarkets:preview_greenville_2026-08-15"
+    },
+    {
+      "event_id": "middle_end_boise_id_2026-08-23",
+      "metric_name": "preview_sold",
+      "metric_value_num": 31.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_boise_id_2026-08-23"
+    },
+    {
+      "event_id": "middle_end_boise_id_2026-08-23",
+      "metric_name": "buying_units_attended",
+      "metric_value_num": 30.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_boise_id_2026-08-23"
+    },
+    {
+      "event_id": "middle_end_boise_id_2026-08-23",
+      "metric_name": "workshop_sales",
+      "metric_value_num": 11.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_boise_id_2026-08-23"
+    },
+    {
+      "event_id": "middle_end_grand_rapids_mi_2026-08-23",
+      "metric_name": "preview_sold",
+      "metric_value_num": 39.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_grand_rapids_mi_2026-08-23"
+    },
+    {
+      "event_id": "middle_end_grand_rapids_mi_2026-08-23",
+      "metric_name": "buying_units_attended",
+      "metric_value_num": 33.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_grand_rapids_mi_2026-08-23"
+    },
+    {
+      "event_id": "middle_end_grand_rapids_mi_2026-08-23",
+      "metric_name": "workshop_sales",
+      "metric_value_num": 17.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_grand_rapids_mi_2026-08-23"
+    },
+    {
+      "event_id": "middle_end_chicago_il_2026-08-16",
+      "metric_name": "preview_sold",
+      "metric_value_num": 56.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_chicago_il_2026-08-16"
+    },
+    {
+      "event_id": "middle_end_chicago_il_2026-08-16",
+      "metric_name": "buying_units_attended",
+      "metric_value_num": 51.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_chicago_il_2026-08-16"
+    },
+    {
+      "event_id": "middle_end_chicago_il_2026-08-16",
+      "metric_name": "workshop_sales",
+      "metric_value_num": 22.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_chicago_il_2026-08-16"
+    },
+    {
+      "event_id": "middle_end_denver_co_2026-08-16",
+      "metric_name": "preview_sold",
+      "metric_value_num": 31.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_denver_co_2026-08-16"
+    },
+    {
+      "event_id": "middle_end_denver_co_2026-08-16",
+      "metric_name": "buying_units_attended",
+      "metric_value_num": 26.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_denver_co_2026-08-16"
+    },
+    {
+      "event_id": "middle_end_denver_co_2026-08-16",
+      "metric_name": "workshop_sales",
+      "metric_value_num": 11.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_denver_co_2026-08-16"
+    },
+    {
+      "event_id": "middle_end_indianapolis_in_2026-08-16",
+      "metric_name": "preview_sold",
+      "metric_value_num": 45.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_indianapolis_in_2026-08-16"
+    },
+    {
+      "event_id": "middle_end_indianapolis_in_2026-08-16",
+      "metric_name": "buying_units_attended",
+      "metric_value_num": 43.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_indianapolis_in_2026-08-16"
+    },
+    {
+      "event_id": "middle_end_indianapolis_in_2026-08-16",
+      "metric_name": "workshop_sales",
+      "metric_value_num": 18.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_indianapolis_in_2026-08-16"
+    },
+    {
+      "event_id": "middle_end_hartford_ct_2026-08-02",
+      "metric_name": "preview_sold",
+      "metric_value_num": 56.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_hartford_ct_2026-08-02"
+    },
+    {
+      "event_id": "middle_end_hartford_ct_2026-08-02",
+      "metric_name": "buying_units_attended",
+      "metric_value_num": 52.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_hartford_ct_2026-08-02"
+    },
+    {
+      "event_id": "middle_end_hartford_ct_2026-08-02",
+      "metric_name": "workshop_sales",
+      "metric_value_num": 23.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:middleEndSummary:middle_end_hartford_ct_2026-08-02"
+    },
+    {
+      "event_id": "upcoming_middle_end_ann_arbor_mi_2026-08-28",
+      "metric_name": "preview_sold",
+      "metric_value_num": 50.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_ann_arbor_mi_2026-08-28"
+    },
+    {
+      "event_id": "upcoming_middle_end_ann_arbor_mi_2026-08-28",
+      "metric_name": "projected_buying_units",
+      "metric_value_num": 51.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_ann_arbor_mi_2026-08-28"
+    },
+    {
+      "event_id": "upcoming_middle_end_ann_arbor_mi_2026-08-28",
+      "metric_name": "middle_end_sold",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_ann_arbor_mi_2026-08-28"
+    },
+    {
+      "event_id": "upcoming_middle_end_raleigh_nc_2026-08-28",
+      "metric_name": "preview_sold",
+      "metric_value_num": 35.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_raleigh_nc_2026-08-28"
+    },
+    {
+      "event_id": "upcoming_middle_end_raleigh_nc_2026-08-28",
+      "metric_name": "projected_buying_units",
+      "metric_value_num": 35.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_raleigh_nc_2026-08-28"
+    },
+    {
+      "event_id": "upcoming_middle_end_raleigh_nc_2026-08-28",
+      "metric_name": "middle_end_sold",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_raleigh_nc_2026-08-28"
+    },
+    {
+      "event_id": "upcoming_middle_end_sacramento_2026-08-28",
+      "metric_name": "preview_sold",
+      "metric_value_num": 34.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_sacramento_2026-08-28"
+    },
+    {
+      "event_id": "upcoming_middle_end_sacramento_2026-08-28",
+      "metric_name": "projected_buying_units",
+      "metric_value_num": 27.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_sacramento_2026-08-28"
+    },
+    {
+      "event_id": "upcoming_middle_end_sacramento_2026-08-28",
+      "metric_name": "middle_end_sold",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_sacramento_2026-08-28"
+    },
+    {
+      "event_id": "upcoming_middle_end_fremont_ca_2026-09-03",
+      "metric_name": "preview_sold",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_fremont_ca_2026-09-03"
+    },
+    {
+      "event_id": "upcoming_middle_end_fremont_ca_2026-09-03",
+      "metric_name": "projected_buying_units",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_fremont_ca_2026-09-03"
+    },
+    {
+      "event_id": "upcoming_middle_end_fremont_ca_2026-09-03",
+      "metric_name": "middle_end_sold",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_fremont_ca_2026-09-03"
+    },
+    {
+      "event_id": "upcoming_middle_end_greenville_sc_2026-09-03",
+      "metric_name": "preview_sold",
+      "metric_value_num": 28.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_greenville_sc_2026-09-03"
+    },
+    {
+      "event_id": "upcoming_middle_end_greenville_sc_2026-09-03",
+      "metric_name": "projected_buying_units",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_greenville_sc_2026-09-03"
+    },
+    {
+      "event_id": "upcoming_middle_end_greenville_sc_2026-09-03",
+      "metric_name": "middle_end_sold",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_greenville_sc_2026-09-03"
+    },
+    {
+      "event_id": "upcoming_middle_end_little_rock_ar_2026-09-03",
+      "metric_name": "preview_sold",
+      "metric_value_num": 43.0,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_little_rock_ar_2026-09-03"
+    },
+    {
+      "event_id": "upcoming_middle_end_little_rock_ar_2026-09-03",
+      "metric_name": "projected_buying_units",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_little_rock_ar_2026-09-03"
+    },
+    {
+      "event_id": "upcoming_middle_end_little_rock_ar_2026-09-03",
+      "metric_name": "middle_end_sold",
+      "metric_value_num": null,
+      "grain": "market",
+      "source_id": null,
+      "source_record_ref": "phase2a:upcomingMePipeline:upcoming_middle_end_little_rock_ar_2026-09-03"
+    },
+    {
+      "event_id": "schedule_raleigh_nc_team_shaw_2026-08-28",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 1.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_raleigh_nc_team_shaw_2026-08-28"
+    },
+    {
+      "event_id": "schedule_ann_arbor_mi_team_tony_2026-08-28",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 1.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_ann_arbor_mi_team_tony_2026-08-28"
+    },
+    {
+      "event_id": "schedule_sacramento_team_drexel_2026-08-28",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 1.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_sacramento_team_drexel_2026-08-28"
+    },
+    {
+      "event_id": "schedule_atlanta_team_wayne_gray_2026-08-29",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 6.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_atlanta_team_wayne_gray_2026-08-29"
+    },
+    {
+      "event_id": "schedule_white_plains_team_vogel_cord_2026-08-29",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 7.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_white_plains_team_vogel_cord_2026-08-29"
+    },
+    {
+      "event_id": "schedule_fremont_ca_team_tony_2026-09-03",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 1.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_fremont_ca_team_tony_2026-09-03"
+    },
+    {
+      "event_id": "schedule_greenville_sc_team_drexel_2026-09-03",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 1.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_greenville_sc_team_drexel_2026-09-03"
+    },
+    {
+      "event_id": "schedule_little_rock_ar_team_nick_2026-09-03",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 1.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_little_rock_ar_team_nick_2026-09-03"
+    },
+    {
+      "event_id": "schedule_newark_team_vogel_cord_2026-09-09",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 6.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_newark_team_vogel_cord_2026-09-09"
+    },
+    {
+      "event_id": "schedule_richmond_team_vogel_cord_2026-09-09",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 6.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_richmond_team_vogel_cord_2026-09-09"
+    },
+    {
+      "event_id": "schedule_baltimore_team_wayne_gray_2026-09-09",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 5.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_baltimore_team_wayne_gray_2026-09-09"
+    },
+    {
+      "event_id": "schedule_portland_team_tony_2026-09-11",
+      "metric_name": "scheduled_sessions",
+      "metric_value_num": 1.0,
+      "grain": "market",
+      "source_id": "upcoming_schedule",
+      "source_record_ref": "phase2a:schedule:schedule_portland_team_tony_2026-09-11"
+    }
+  ],
+  "freshness_manifest": [
+    {
+      "page": "Executive",
+      "section": "Expo count",
+      "status": "yellow",
+      "sources": [
+        "slack:#expo"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-27T11:13:27.813319-06:00",
+      "latest_data_date": "2026-08-27",
+      "rendered_values": "BU 129, Guests 72, UTL 7, TLWB 95, KeySpire 0, Total 201",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: expo."
+    },
+    {
+      "page": "Executive",
+      "section": "Active preview pace",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Executive",
+      "section": "Completed ME show-rate groups",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamtony",
+        "slack:#teamshaw",
+        "slack:#teamnick",
+        "slack:#teamdrecksel"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T12:08:41.027329-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": "Boise, ID (Team Nick \u00b7 Speaker Nick): preview sold 31, shown BU 30, ME sold 11 | Grand Rapids, MI (Team Tony \u00b7 Speaker Tony): preview sold 39, shown BU 33, ME sold 17 | Chicago, IL (Team Tony \u00b7 Speaker Tony): preview sold 56, shown BU 51, ME sold 22 | Denver, CO (Team Drecksel \u00b7 Speaker Drecksel): preview sold 31, shown BU 26, ME sold 11 | Indianapolis, IN (Team Shaw \u00b7 Speaker Shaw): preview sold 45, shown BU 43, ME sold 18 | Hartford, CT (Team Tony \u00b7 Speaker Tony): preview sold 56, shown BU 52, ME sold 23",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamnick."
+    },
+    {
+      "page": "Executive",
+      "section": "Current upcoming ME pipeline",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar",
+        "google_sheet:workshop_team_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": "Ann Arbor, MI (Team Vogel / #teamvogel -> Team Tony): preview sold 50, projected BU 51, ME sold null, source 2026-08-28T08:30:29.317829-06:00 | Raleigh, NC (Team Wayne / #teamwayne -> Team Shaw): preview sold 35, projected BU 35, ME sold null, source 2026-08-28T08:38:56.181799-06:00 | Sacramento (Team Vogel / #teamvogel -> Team Drexel): preview sold 34, projected BU 27, ME sold null, source 2026-08-28T11:30:09.241479-06:00 | Fremont, CA (Pending preview source -> Team Tony): preview sold null, projected BU null, ME sold null, source 2026-08-29T08:07:21-06:00",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Executive",
+      "section": "Active marketing",
+      "status": "green",
+      "sources": [
+        "slack:#eventstats"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T11:45:53.860799-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Marketing",
+      "section": "Active markets",
+      "status": "green",
+      "sources": [
+        "slack:#eventstats"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T11:45:53.860799-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Marketing",
+      "section": "Historical market comparisons",
+      "status": "green",
+      "sources": [
+        "slack:#eventstats"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T11:45:53.860799-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Preview",
+      "section": "Current Preview Markets",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Preview",
+      "section": "Session Breakdown",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Preview",
+      "section": "Recent final routes",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamvogel",
+        "slack:#teammillar",
+        "slack:#teamdent"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teammillar, teamdent."
+    },
+    {
+      "page": "Preview",
+      "section": "Team historical performance",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamwyman",
+        "slack:#teamvogel"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teamwyman."
+    },
+    {
+      "page": "Preview",
+      "section": "Coverage requirement: Team Wyman",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwyman"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-05-19T11:39:24.244169-06:00",
+      "latest_data_date": "2026-05-19",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamwyman."
+    },
+    {
+      "page": "Workshop / ME",
+      "section": "Current or Just Completed",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamtony",
+        "slack:#teamshaw",
+        "slack:#teamnick",
+        "slack:#teamdrecksel"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T12:08:41.027329-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamnick."
+    },
+    {
+      "page": "Workshop / ME",
+      "section": "Historical ME performance",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamtony",
+        "slack:#teamshaw",
+        "slack:#teamnick",
+        "slack:#teamdrecksel"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T12:08:41.027329-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamnick."
+    },
+    {
+      "page": "Executive",
+      "section": "Upcoming route blocks",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Calendar and route blocks",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Operational source ledger",
+      "status": "green",
+      "sources": [
+        "data:source_health.json",
+        "data:schedule.json"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:47-06:00",
+      "latest_data_date": null,
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Inside Sales",
+      "section": "DPL and collections",
+      "status": "green",
+      "sources": [
+        "api:inside_replit_latest",
+        "api:collections_replit_latest"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:06:40.188250-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Raleigh, NC / Team Shaw",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Ann Arbor, MI / Team Tony",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Sacramento / Team Drexel",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Atlanta / Team Wayne/Gray",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: White Plains / Team Vogel/Cord",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Fremont, CA / Team Tony",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-03",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Greenville, SC / Team Drexel",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-03",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Little Rock, AR / Team Nick",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-03",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Newark / Team Vogel/Cord",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-09",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Richmond / Team Vogel/Cord",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-09",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Baltimore / Team Wayne/Gray",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-09",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Schedule",
+      "section": "Route block: Portland / Team Tony",
+      "status": "green",
+      "sources": [
+        "google_sheet:upcoming_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T08:07:38-06:00",
+      "latest_data_date": "2026-09-11",
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Optional coverage: #front-end-team",
+      "status": "green",
+      "sources": [
+        "slack:#front-end-team"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-21T19:22:31.235259-06:00",
+      "latest_data_date": null,
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Optional coverage: #ticketsales",
+      "status": "green",
+      "sources": [
+        "slack:#ticketsales"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-25T09:14:53.619019-06:00",
+      "latest_data_date": null,
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Optional coverage: #collections-allteams",
+      "status": "green",
+      "sources": [
+        "slack:#collections-allteams"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T20:49:38.497639-06:00",
+      "latest_data_date": null,
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Optional coverage: #refunds-allteams",
+      "status": "green",
+      "sources": [
+        "slack:#refunds-allteams"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T17:03:39.712059-06:00",
+      "latest_data_date": null,
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Optional coverage: #fe-confirmations-team",
+      "status": "green",
+      "sources": [
+        "slack:#fe-confirmations-team"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T11:15:58.709239-06:00",
+      "latest_data_date": null,
+      "rendered_values": null,
+      "blocker": null
+    },
+    {
+      "page": "Data QA",
+      "section": "Coverage requirement: Megan",
+      "status": "green",
+      "sources": [
+        "slack:#teamshaw",
+        "coverage_requirement:megan"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T10:02:26.853779-06:00",
+      "latest_data_date": null,
+      "rendered_values": null,
+      "blocker": null
+    }
+  ],
+  "fail_closed_sections": [
+    {
+      "page": "Executive",
+      "section": "Expo count",
+      "status": "yellow",
+      "sources": [
+        "slack:#expo"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-27T11:13:27.813319-06:00",
+      "latest_data_date": "2026-08-27",
+      "rendered_values": "BU 129, Guests 72, UTL 7, TLWB 95, KeySpire 0, Total 201",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: expo."
+    },
+    {
+      "page": "Executive",
+      "section": "Active preview pace",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Executive",
+      "section": "Completed ME show-rate groups",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamtony",
+        "slack:#teamshaw",
+        "slack:#teamnick",
+        "slack:#teamdrecksel"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T12:08:41.027329-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": "Boise, ID (Team Nick \u00b7 Speaker Nick): preview sold 31, shown BU 30, ME sold 11 | Grand Rapids, MI (Team Tony \u00b7 Speaker Tony): preview sold 39, shown BU 33, ME sold 17 | Chicago, IL (Team Tony \u00b7 Speaker Tony): preview sold 56, shown BU 51, ME sold 22 | Denver, CO (Team Drecksel \u00b7 Speaker Drecksel): preview sold 31, shown BU 26, ME sold 11 | Indianapolis, IN (Team Shaw \u00b7 Speaker Shaw): preview sold 45, shown BU 43, ME sold 18 | Hartford, CT (Team Tony \u00b7 Speaker Tony): preview sold 56, shown BU 52, ME sold 23",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamnick."
+    },
+    {
+      "page": "Executive",
+      "section": "Current upcoming ME pipeline",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar",
+        "google_sheet:workshop_team_schedule"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": "Ann Arbor, MI (Team Vogel / #teamvogel -> Team Tony): preview sold 50, projected BU 51, ME sold null, source 2026-08-28T08:30:29.317829-06:00 | Raleigh, NC (Team Wayne / #teamwayne -> Team Shaw): preview sold 35, projected BU 35, ME sold null, source 2026-08-28T08:38:56.181799-06:00 | Sacramento (Team Vogel / #teamvogel -> Team Drexel): preview sold 34, projected BU 27, ME sold null, source 2026-08-28T11:30:09.241479-06:00 | Fremont, CA (Pending preview source -> Team Tony): preview sold null, projected BU null, ME sold null, source 2026-08-29T08:07:21-06:00",
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Preview",
+      "section": "Current Preview Markets",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Preview",
+      "section": "Session Breakdown",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamvogel",
+        "slack:#teammillar"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teammillar."
+    },
+    {
+      "page": "Preview",
+      "section": "Recent final routes",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamvogel",
+        "slack:#teammillar",
+        "slack:#teamdent"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teammillar, teamdent."
+    },
+    {
+      "page": "Preview",
+      "section": "Team historical performance",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamwayne",
+        "slack:#teamdent",
+        "slack:#teamwyman",
+        "slack:#teamvogel"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-29T06:04:55.955799-06:00",
+      "latest_data_date": "2026-08-29",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamdent, teamwyman."
+    },
+    {
+      "page": "Workshop / ME",
+      "section": "Current or Just Completed",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamtony",
+        "slack:#teamshaw",
+        "slack:#teamnick",
+        "slack:#teamdrecksel"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T12:08:41.027329-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamnick."
+    },
+    {
+      "page": "Workshop / ME",
+      "section": "Historical ME performance",
+      "status": "yellow",
+      "sources": [
+        "slack:#teamtony",
+        "slack:#teamshaw",
+        "slack:#teamnick",
+        "slack:#teamdrecksel"
+      ],
+      "last_checked": "2026-08-29T08:07:47-06:00",
+      "latest_source_post_date": "2026-08-28T12:08:41.027329-06:00",
+      "latest_data_date": "2026-08-28",
+      "rendered_values": null,
+      "blocker": "Checked, but not every mapped source has a fresh positive assertion: teamnick."
+    }
+  ],
+  "acceptance": {
+    "required_sections_present": true,
+    "missing_sections": [],
+    "high_risk_cards_from_normalized_records": true,
+    "stale_or_missing_sources_fail_closed": true
+  }
+}

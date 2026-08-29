@@ -16,6 +16,13 @@ module = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = module
 SPEC.loader.exec_module(module)
 
+FRESHNESS_PATH = Path(__file__).with_name("phase1_freshness_spine.py")
+FRESHNESS_SPEC = importlib.util.spec_from_file_location("phase1_freshness_spine_test", FRESHNESS_PATH)
+assert FRESHNESS_SPEC and FRESHNESS_SPEC.loader
+freshness_module = importlib.util.module_from_spec(FRESHNESS_SPEC)
+sys.modules[FRESHNESS_SPEC.name] = freshness_module
+FRESHNESS_SPEC.loader.exec_module(freshness_module)
+
 TZ = ZoneInfo("America/Denver")
 
 
@@ -57,6 +64,17 @@ class ActivePreviewReportingWindowTests(unittest.TestCase):
             module.active_preview_reporting_expected(
                 schedule(""), datetime(2026, 7, 25, 12, 0, tzinfo=TZ)
             )
+        )
+
+    def test_active_freshness_channels_follow_live_cards_only(self) -> None:
+        adapter = """export const activePreviewMarkets: ActivePreviewMarket[] = [
+  { team: 'Team Wayne · Speaker Megan / #teamwayne', sourceState: 'active_session' },
+  { team: 'Team Millar · Speaker Jay / #teammillar', sourceState: 'active_session' },
+  { team: 'Team Dent · Speaker Nick / #teamdent', sourceState: 'final_route_totals' }
+];"""
+        self.assertEqual(
+            freshness_module.active_preview_source_channels(adapter),
+            ["teamwayne", "teammillar"],
         )
 
 
