@@ -28,6 +28,7 @@ describe("Phase 1 freshness spine", () => {
       "teamdent",
       "teamwyman",
       "teamvogel",
+      "teammillar",
       "eventstats",
       "expo",
     ]);

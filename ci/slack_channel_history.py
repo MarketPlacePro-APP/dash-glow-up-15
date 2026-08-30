@@ -2,15 +2,16 @@
 """Headless Slack channel history collector for CI (replaces the Studio-only
 skills/tlwb-preview-reporting/scripts/recent_slack.py).
 
-Emits the same per-channel section layout that tlwb_recent_slack_bundle.py used
-("## #channel\\n<body>") so scripts/update_tlwb_slack_operational_sections.py can
-consume it. Uses a Slack bot token (SLACK_BOT_TOKEN) with channels:history and
-the bot invited to each channel.
+Emits the exact per-message record format that
+scripts/update_tlwb_slack_operational_sections.py::parse_messages consumes:
 
-NOTE: the exact body text that update_tlwb_slack_operational_sections.py parses
-was defined by the un-committed recent_slack.py. This renders each message as
-"[timestamp] user: text"; validate/adjust against the real parser before Phase 2
-cutover (see ci/README.md).
+    --- #<channel> <posted_at> ts=<slack_ts>
+    <message body>
+
+Records are delimited by the next "--- #" (or a "## #" section header) and the
+body is whitespace-normalized by the parser, so single-line bodies are emitted.
+Uses a Slack bot token (SLACK_BOT_TOKEN) with channels:history and the bot
+invited to each channel.
 """
 from __future__ import annotations
 
@@ -49,21 +50,21 @@ def resolve_channel_id(name: str, token: str) -> str | None:
             return None
 
 
-def channel_body(name: str, token: str, limit: int) -> tuple[bool, str]:
+def channel_records(name: str, token: str, limit: int) -> tuple[bool, list[str], str]:
     channel_id = resolve_channel_id(name, token)
     if not channel_id:
-        return False, "channel not found or bot not a member"
+        return False, [], "channel not found or bot not a member"
     data = slack_get("conversations.history", token, {"channel": channel_id, "limit": limit})
     if not data.get("ok"):
-        return False, str(data.get("error", "history_error"))
-    lines = []
+        return False, [], str(data.get("error", "history_error"))
+    records = []
+    # Oldest-first so posted_at ordering within a channel is chronological.
     for message in reversed(data.get("messages", [])):
-        ts = message.get("ts", "0")
-        stamp = datetime.fromtimestamp(float(ts), tz=timezone.utc).isoformat()
-        user = message.get("user") or message.get("username") or "unknown"
-        text = (message.get("text") or "").replace("\n", " ").strip()
-        lines.append(f"[{stamp}] {user}: {text}")
-    return True, "\n".join(lines) or "(no recent messages)"
+        ts = str(message.get("ts", "0"))
+        posted_at = datetime.fromtimestamp(float(ts), tz=timezone.utc).isoformat()
+        text = (message.get("text") or "").replace("\r", " ").replace("\n", " ").strip()
+        records.append(f"--- #{name} {posted_at} ts={ts}\n{text}")
+    return True, records, ""
 
 
 def main() -> int:
@@ -80,20 +81,21 @@ def main() -> int:
     checked, unavailable, sections = [], [], []
     for raw in args.channels:
         name = raw.lstrip("#")
-        ok, body = channel_body(name, token, args.limit)
+        ok, records, err = channel_records(name, token, args.limit)
         if ok:
             checked.append(name)
+            body = "\n".join(records) if records else "(no recent messages)"
             sections.append(f"## #{name}\n{body}")
         else:
-            unavailable.append(f"{name}: {body}")
-            sections.append(f"## #{name}\nUNAVAILABLE: {body}")
+            unavailable.append(f"{name}: {err}")
+            sections.append(f"## #{name}\nUNAVAILABLE: {err}")
 
     summary = [
         "Channels checked: " + (", ".join(checked) if checked else "none"),
         "Channels unavailable: " + (", ".join(unavailable) if unavailable else "none"),
     ]
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text("\n".join(summary + ["", *sections]) + "\n")
+    args.out.write_text("\n".join(summary) + "\n\n" + "\n\n".join(sections) + "\n")
     print("\n".join(summary))
     return 0
 

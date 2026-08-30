@@ -50,16 +50,19 @@ headless run is blocked until they are committed or otherwise provided:
 
 1. `src/lib/sourceHealthStatus.ts` — reconstructed here from the test contract;
    replace with the canonical Studio version if it differs.
-2. Slack snapshot format — `slack_channel_history.py` approximates the output of
-   the un-committed `recent_slack.py`; validate against
-   `scripts/update_tlwb_slack_operational_sections.py` before Phase 2.
-3. `data/lindsey_shared_2026-04-25/Market_Comparisons.xlsx` — a static Studio-only
+2. `data/lindsey_shared_2026-04-25/Market_Comparisons.xlsx` — a static Studio-only
    input still read by `generate-live-data-review.py`.
-4. A coherent test/data baseline — the committed test `phase1Freshness.test.ts`
-   expects 8 required Slack channels, but `data/source_health.json` now lists 9
-   (adds `teammillar`), and the preview adapters lack the `sourceState` the test
-   asserts. The Studio's working tree is internally consistent at deploy time;
-   the git snapshot is not. Commit a state that passes `npm test`.
+3. A coherent test/data baseline. RESOLVED here: the `teammillar` required-channel
+   mismatch (test now matches `data/source_health.json`), and the Slack snapshot
+   format (`slack_channel_history.py` output now round-trips through
+   `scripts/update_tlwb_slack_operational_sections.py::parse_messages`). STILL
+   data-driven and needing Harlow's canonical data: an optional-coverage row in
+   `data/source_health.json` renders `green` where the test expects `yellow`, and
+   the preview adapters lack the `sourceState` the test asserts. Commit matching
+   data so `npm test` is green.
+
+The Studio's working tree is internally consistent at deploy time; the git
+snapshot is not, which is why these committed data reconciliations are required.
 
 ## Phases
 
