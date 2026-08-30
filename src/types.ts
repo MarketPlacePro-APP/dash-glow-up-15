@@ -176,3 +176,100 @@ export interface DashboardDataset {
   speakerBenchmarks: SpeakerBenchmarkRecord[];
   marketOps: MarketOpsRecord[];
 }
+
+export type SourceHealthStatus = 'green' | 'neutral/fine' | 'yellow' | 'red';
+
+export interface SourceHealthRow {
+  page: string;
+  section: string;
+  sources: string[];
+  source_location?: string;
+  last_checked: string;
+  last_synced?: string | null;
+  latest_source_post_date: string | null;
+  latest_data_date?: string | null;
+  rendered_values?: string | null;
+  rows_seen: number;
+  new_rows_since_last_check: number;
+  status: SourceHealthStatus;
+  schedule_state: string;
+  expected_cadence: string;
+  notes: string;
+  blocker?: string | null;
+}
+
+export interface SourceHealthArtifact {
+  generated_at: string;
+  timezone: 'America/Denver';
+  build_timestamp?: string | null;
+  git_sha?: string | null;
+  deploy_id?: string | null;
+  source: {
+    control_plane: string;
+    runtime_rule: string;
+  };
+  required_channels: string[];
+  optional_channels: string[];
+  channel_aliases: Record<string, string>;
+  rows: SourceHealthRow[];
+}
+
+export interface Phase2AAuditEvent {
+  event_id: string;
+  market_name: string;
+  event_type: string;
+  segment: string;
+  team_name: string;
+  start_date: string | null;
+  end_date: string | null;
+  source_record_ref: string;
+  status: string;
+  metrics: Record<string, number | null>;
+}
+
+export interface Phase2AAuditMetric {
+  event_id: string;
+  metric_name: string;
+  metric_value_num: number | null;
+  grain: string;
+  source_id?: string | null;
+  source_record_ref: string;
+}
+
+export interface Phase2AFreshnessManifestRow {
+  page: string;
+  section: string;
+  status: SourceHealthStatus;
+  sources: string[];
+  last_checked: string;
+  latest_source_post_date: string | null;
+  latest_data_date?: string | null;
+  rendered_values?: string | null;
+  blocker?: string | null;
+}
+
+export interface Phase2AAuditArtifact {
+  phase: '2A';
+  generated_at: string;
+  timezone: 'America/Denver';
+  source: {
+    control_plane: string;
+    runtime_rule: string;
+  };
+  counts: {
+    event_roster: number;
+    metric_rows: number;
+    freshness_rows: number;
+    fail_closed_sections: number;
+  };
+  event_roster: Phase2AAuditEvent[];
+  normalized_metrics: Phase2AAuditMetric[];
+  freshness_manifest: Phase2AFreshnessManifestRow[];
+  fail_closed_sections: Phase2AFreshnessManifestRow[];
+  acceptance: {
+    required_sections_present: boolean;
+    missing_sections: string[];
+    high_risk_cards_from_normalized_records: boolean;
+    stale_or_missing_sources_fail_closed: boolean;
+  };
+}
