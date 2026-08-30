@@ -1419,7 +1419,7 @@ def market_from_me(body: str) -> str | None:
     # than a workflow-bot ``Market:`` field. Capture only the leading city/state
     # pair; venue and date text after the state are not part of the market key.
     heading_market = re.search(
-        r"^[*_`\s]*([A-Za-z][A-Za-z .'-]*?)[.,]\s*([A-Z]{2})\b",
+        r"([A-Z][A-Za-z .'-]*?)[.,]\s*([A-Z]{2})\b",
         body,
     )
     if heading_market:

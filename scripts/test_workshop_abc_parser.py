@@ -23,6 +23,12 @@ class WorkshopAbcParserTests(unittest.TestCase):
         )
         self.assertEqual(module.market_from_me(body), "Atlanta, GA")
 
+        updated = (
+            "***UPDATED #'s* *Atlanta. GA* *Westin Atlanta Perimeter North* "
+            "May 21-23 2026 BU’s: 61 Total Sales: 20 Written: $246,000 Collected: $124,755"
+        )
+        self.assertEqual(module.market_from_me(updated), "Atlanta, GA")
+
     def test_extracts_market_from_dated_workflow_bot_field(self) -> None:
         body = (
             "<@U02P1N1EAF5> submitted Event Stats. | "
