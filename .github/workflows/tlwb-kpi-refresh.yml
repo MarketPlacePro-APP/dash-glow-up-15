@@ -28,6 +28,9 @@ on:
     - cron: "5 15,19,23 * * *"
     - cron: "5 3 * * *"
 
+permissions:
+  contents: read
+
 concurrency:
   group: tlwb-kpi-refresh
   cancel-in-progress: false
@@ -40,6 +43,7 @@ jobs:
       TLWB_KPI_DEPLOY: "0" # Phase 1: never deploy from CI yet.
       TLWB_CI_FULL_REFRESH: "1"
       GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      GOOGLE_OAUTH_TOKEN_JSON: ${{ secrets.GOOGLE_OAUTH_TOKEN_JSON }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       TLWB_WORKER_TOKEN: ${{ secrets.TLWB_WORKER_TOKEN }}
       REQUEST_ID: ${{ github.event.inputs.request_id || github.event.client_payload.request_id }}
@@ -76,7 +80,18 @@ jobs:
       - name: Run refresh pipeline (no deploy)
         id: refresh
         working-directory: workspace-main/dash-glow-up-15
-        run: bash ci/tlwb_kpi_ci_refresh.sh 2>&1 | tee /tmp/tlwb-refresh.log
+        run: bash ci/tlwb_kpi_ci_refresh.sh 2>&1 | tee "$GITHUB_WORKSPACE/tlwb-refresh.log"
+
+      - name: Assert Phase 1 did not deploy
+        if: steps.refresh.outcome == 'success'
+        run: |
+          set -euo pipefail
+          grep -q "deploy skipped (Phase 1, TLWB_KPI_DEPLOY=0)" "$GITHUB_WORKSPACE/tlwb-refresh.log"
+          if grep -q "TLWB_KPI_DEPLOYED" "$GITHUB_WORKSPACE/tlwb-refresh.log"; then
+            echo "Unexpected deploy marker in Phase 1 log" >&2
+            exit 1
+          fi
+          echo "OK: TLWB_KPI_DEPLOY=0; no deploy marker emitted"
 
       # Report the outcome back to the refresh state machine so the dashboard's
       # "Refresh now" UI resolves. Dormant unless a request id + worker token exist.
@@ -85,12 +100,12 @@ jobs:
         run: |
           if [ "${{ steps.refresh.outcome }}" != "success" ]; then
             action=fail; msg="Refresh failed a validation or build gate; the prior verified build remains live."
-          elif grep -q "TLWB_KPI_DEPLOYED" /tmp/tlwb-refresh.log; then
+          elif grep -q "TLWB_KPI_DEPLOYED" "$GITHUB_WORKSPACE/tlwb-refresh.log"; then
             action=complete; msg="New source data was published and verified."
           else
             action=no_change; msg="Checked all sources and gates; no material change was published."
           fi
-          fp=$(grep -oE "fingerprint=[0-9a-f]{64}" /tmp/tlwb-refresh.log | tail -1 | cut -d= -f2 || true)
+          fp=$(grep -oE "fingerprint=[0-9a-f]{64}" "$GITHUB_WORKSPACE/tlwb-refresh.log" | tail -1 | cut -d= -f2 || true)
           curl -sS -X POST https://tlwb-kpi.vercel.app/api/internal/refresh-work \
             -H "Authorization: Bearer $TLWB_WORKER_TOKEN" -H "Content-Type: application/json" \
             -d "{\"action\":\"$action\",\"request_id\":\"$REQUEST_ID\",\"message\":\"$msg\",\"deployed_fingerprint\":\"$fp\"}" || true
@@ -102,4 +117,8 @@ jobs:
           name: tlwb-kpi-dist
           path: |
             workspace-main/dash-glow-up-15/dist
+            workspace-main/dash-glow-up-15/data/source_health.json
+            workspace-main/dash-glow-up-15/data/schedule.json
+            workspace-main/dash-glow-up-15/data/phase2a_audit.json
+            tlwb-refresh.log
           if-no-files-found: warn

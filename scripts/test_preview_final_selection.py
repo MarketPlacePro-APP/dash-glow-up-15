@@ -6,7 +6,7 @@ import sys
 import unittest
 from pathlib import Path
 
-MODULE_PATH = Path(__file__).resolve().parents[2] / "scripts" / "update_tlwb_slack_operational_sections.py"
+MODULE_PATH = Path(__file__).with_name("update_tlwb_slack_operational_sections.py")
 SPEC = importlib.util.spec_from_file_location("tlwb_slack_updater", MODULE_PATH)
 assert SPEC and SPEC.loader
 module = importlib.util.module_from_spec(SPEC)
@@ -41,6 +41,31 @@ def result(channel: str, posted_at: str, market: str, date: str, speaker: str, c
 
 
 class PreviewFinalSelectionTests(unittest.TestCase):
+    def test_plain_mrkdwn_market_heading_builds_live_white_plains_row(self):
+        messages = [
+            msg("teamvogel", "2026-08-29T14:30:01+00:00", "White Plains Saturday 8/29/26 Hotel NoMa New Rochelle Day 1 Session 1 Total Reg: 168 Total Head Count: 33"),
+            msg("teamvogel", "2026-08-29T15:51:11+00:00", "White Plains Saturday 8/29/26 Hotel NoMa New Rochelle Day 1 Session 1 Session Deals: 17 Master Class: (Megan): 16 Total Route Conversion: % Total Futures: 1"),
+            msg("teamvogel", "2026-08-29T18:30:12+00:00", "White Plains Saturday 8/29/26 Hotel NoMa New Rochelle Day 1 Session 2 Total Reg: 93 Total Head Count: 17"),
+            msg("teamvogel", "2026-08-29T19:48:04+00:00", "White Plains Saturday 8/29/26 Hotel NoMa New Rochelle Day 1 Session 2 Session Deals: 8 Master Class: (Megan): 23 Total Route Conversion: 50% Total Futures: 2"),
+        ]
+
+        rows, _session_rows, _latest_post, _latest_date = module.parse_active_preview_rows(messages, [])
+        self.assertEqual(len(rows), 1)
+        self.assertIn("market: 'White Plains'", rows[0])
+        self.assertIn("sourceState: 'active_session'", rows[0])
+        self.assertIn("sessionsCompleted: 2", rows[0])
+        self.assertIn("routeDeals: 25", rows[0])
+
+    def test_flattened_weekday_suffix_joins_saint_louis_session_to_final(self):
+        self.assertEqual(
+            module.active_preview_market_display("Atlanta, Georgia Saturday"),
+            "Atlanta, Georgia",
+        )
+        self.assertEqual(
+            module.normalize_market_name("Saint Louis, MO Wednesday"),
+            module.normalize_market_name("St. Louis, MO"),
+        )
+
     def test_preserves_team_channel_coverage_and_uses_explicit_team_and_speaker(self):
         # Bundle order intentionally groups #teamwayne first, reproducing the old
         # rows[:6] bug that hid all #teamvogel cards.

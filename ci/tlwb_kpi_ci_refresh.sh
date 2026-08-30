@@ -13,9 +13,9 @@
 #   TLWB_KPI_DEPLOY=0 (default here) -> fetch + generate + gates + build, NO deploy.
 #   TLWB_KPI_DEPLOY=1                -> also pull/build/deploy to Vercel (Phase 2).
 #
-# Required for a full data refresh (fail-soft skips are logged, not silent):
-#   - Google sheets: anonymous export works today; set GOOGLE_SERVICE_ACCOUNT_JSON
-#     for reliable authenticated export.
+# Required for a full data refresh (missing required inputs fail closed):
+#   - Google sheets: set GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_OAUTH_TOKEN_JSON
+#     for the privately shared Market Comparisons source.
 #   - Slack: SLACK_BOT_TOKEN (bot invited to the required channels).
 #   - Market_Comparisons.xlsx: a Studio-only static input (see ci/README.md).
 set -euo pipefail
@@ -31,16 +31,30 @@ DEPLOY_ENABLED="${TLWB_KPI_DEPLOY:-0}"
 FULL_REFRESH="${TLWB_CI_FULL_REFRESH:-1}"
 mkdir -p "$EXPORTS_DIR"
 
+if [[ "$FULL_REFRESH" == "1" ]]; then
+  [[ -n "${SLACK_BOT_TOKEN:-}" ]] || { log "ERROR: SLACK_BOT_TOKEN is required for a full refresh"; exit 40; }
+  if [[ -z "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" && -z "${GOOGLE_OAUTH_TOKEN_JSON:-}" ]]; then
+    log "ERROR: GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_OAUTH_TOKEN_JSON is required for a full refresh"
+    exit 41
+  fi
+fi
+
 if [[ "$(basename "$SRC")" != "dash-glow-up-15" ]]; then
   log "WARNING: repo dir is '$(basename "$SRC")', but the committed generators expect it to be named 'dash-glow-up-15' (they resolve data via parents[2]). Check out the repo into <workspace-main>/dash-glow-up-15."
 fi
 
 # --- Source fetch: Google Sheets (anon export, authenticated fallback) ---------
-declare -A SHEETS=(
-  [numbers_per_session_1dfke_latest]="1dfke_KCSGHNfnG_FUjAwo1TPAXFtgLEh9tE_XqQB0TU"
-  [upcoming_schedule_1F05mJ_latest]="1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY"
-  [workshop_schedule_sheet_1psHz1_latest]="1psHz1be5AdbpjLu4vWEIvecf6CLeuRWodBoHu20Dotw"
-  [ws_sales_tracker_1CmJ_latest]="1CmJYo4jIiweNArfZvvKdb0q_WlLtLsNH1UqHaad5gxQ"
+SHEET_NAMES=(
+  numbers_per_session_1dfke_latest
+  upcoming_schedule_1F05mJ_latest
+  workshop_schedule_sheet_1psHz1_latest
+  ws_sales_tracker_1CmJ_latest
+)
+SHEET_IDS=(
+  1dfke_KCSGHNfnG_FUjAwo1TPAXFtgLEh9tE_XqQB0TU
+  1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY
+  1psHz1be5AdbpjLu4vWEIvecf6CLeuRWodBoHu20Dotw
+  1CmJYo4jIiweNArfZvvKdb0q_WlLtLsNH1UqHaad5gxQ
 )
 
 validate_xlsx() {
@@ -57,20 +71,30 @@ PY
 
 fetch_sheet() {
   local name="$1" id="$2" out="$EXPORTS_DIR/$1.xlsx"
-  if [[ -n "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" ]]; then
-    if python3 "$SRC/ci/fetch_google_sheet.py" --id "$id" --out "$out"; then
-      validate_xlsx "$out"; return 0
-    fi
-    log "WARN: authenticated export failed for $name; falling back to anonymous export"
-  fi
-  curl -sSL --retry 4 --retry-all-errors --retry-delay 2 --connect-timeout 20 --max-time 120 \
+  # Preserve native workbook formatting/date metadata whenever the public export
+  # is available. The Sheets-API values fallback intentionally reconstructs only
+  # cell values and is therefore unsuitable as the first choice for schedule
+  # workbooks whose date parsing depends on native XLSX metadata.
+  if curl -sSL --retry 4 --retry-all-errors --retry-delay 2 --connect-timeout 20 --max-time 120 \
     -A "Mozilla/5.0 (TLWB KPI CI Refresh)" \
-    "https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx" -o "$out"
-  validate_xlsx "$out"
+    "https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx" -o "$out" \
+    && validate_xlsx "$out"; then
+    return 0
+  fi
+  log "WARN: anonymous export failed for $name; trying authenticated export"
+  if [[ -n "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" || -n "${GOOGLE_OAUTH_TOKEN_JSON:-}" ]]; then
+    python3 "$SRC/ci/fetch_google_sheet.py" --id "$id" --out "$out"
+    validate_xlsx "$out"
+    return 0
+  fi
+  log "ERROR: no authenticated fallback is configured for $name"
+  return 1
 }
 
 log "Fetching structured Google Sheet exports"
-for name in "${!SHEETS[@]}"; do fetch_sheet "$name" "${SHEETS[$name]}"; done
+for index in "${!SHEET_NAMES[@]}"; do
+  fetch_sheet "${SHEET_NAMES[$index]}" "${SHEET_IDS[$index]}"
+done
 
 # --- Source fetch: Replit JSON feeds (public) ----------------------------------
 fetch_json() {
@@ -104,7 +128,8 @@ if [[ -n "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" || -n "${GOOGLE_OAUTH_TOKEN_JSON:-}"
   python3 "$SRC/ci/fetch_google_sheet.py" --id "$MC_SHEET_ID" --out "$MARKET_COMPARISONS"
   validate_xlsx "$MARKET_COMPARISONS"
 else
-  log "SKIP Market Comparisons fetch: set GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_OAUTH_TOKEN_JSON (sheet is privately shared; anon export 401)"
+  log "SKIP Market Comparisons fetch: no Google credential (sheet is privately shared; anon export 401)"
+  [[ "$FULL_REFRESH" != "1" ]] || exit 41
 fi
 
 # --- Data regeneration ----------------------------------------------------------
@@ -114,11 +139,15 @@ if [[ "$FULL_REFRESH" == "1" && -f "$MARKET_COMPARISONS" ]]; then
 
   if [[ -n "${SLACK_BOT_TOKEN:-}" ]]; then
     SLACK_SNAPSHOT="$DATA_DIR/slack-source-$(date +%Y%m%d-%H%M%S).txt"
-    python3 "$SRC/ci/slack_channel_history.py" --out "$SLACK_SNAPSHOT" \
-      eventstats expo teamtony teamshaw teamdrecksel teamnick teamwayne teamdent teamwyman teamvogel teammillar
+    SLACK_STATUS="$DATA_DIR/slack-source-status.json"
+    python3 "$SRC/ci/slack_channel_history.py" --out "$SLACK_SNAPSHOT" --status-out "$SLACK_STATUS" \
+      eventstats expo teamtony teamshaw teamdrecksel teamnick teamwayne teamdent teamwyman teamvogel teammillar \
+      --optional front-end-team ticketsales collections-allteams refunds-allteams fe-confirmations-team
     ( cd "$WORKSPACE_MAIN" && python3 "$SRC/scripts/update_tlwb_slack_operational_sections.py" --slack "$SLACK_SNAPSHOT" --src "$SRC" )
+    ( cd "$SRC" && python3 ci/phase1_freshness_ci.py --status "$SLACK_STATUS" )
   else
     log "SKIP: SLACK_BOT_TOKEN not set; leaving committed Slack adapters in place"
+    [[ "$FULL_REFRESH" != "1" ]] || exit 40
   fi
 else
   log "SKIP full regenerate: TLWB_CI_FULL_REFRESH must be 1 and Market Comparisons must be fetched (needs a Google credential; see ci/README.md)"
@@ -128,6 +157,18 @@ fi
 cd "$SRC"
 log "Installing dependencies"
 npm ci
+log "Running parser and business-truth gates"
+python3 scripts/validate_tlwb_market_roster.py --src "$SRC" --slack "$SLACK_SNAPSHOT"
+python3 scripts/test_marketing_history_coverage.py
+python3 scripts/test_marketing_preview_no_drop.py
+python3 scripts/test_workshop_schedule_parser.py
+python3 scripts/test_upcoming_me_pipeline.py
+python3 scripts/test_preview_final_selection.py
+python3 scripts/test_workshop_abc_parser.py
+python3 scripts/test_tlwb_preview_history.py
+python3 scripts/test_phase1_predeploy_gate.py
+python3 scripts/phase1_predeploy_gate.py
+python3 scripts/generate_analytics_brain_data.py
 log "Running tests (NODE_ENV=test)"
 NODE_ENV=test npm test -- --run
 log "Building production bundle (NODE_ENV=production)"

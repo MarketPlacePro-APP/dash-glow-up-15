@@ -35,8 +35,17 @@ describe("Phase 1 freshness spine", () => {
     expect(sourceHealth.channel_aliases.teamvogal).toBe("teamvogel");
     for (const channel of sourceHealth.optional_channels) {
       const row = sourceHealth.rows.find((item) => item.section === `Optional coverage: #${channel}`);
-      expect(row?.status).toBe("yellow");
-      expect(row?.notes).toMatch(/does not block deploy/i);
+      expect(row, channel).toBeDefined();
+      expect(row?.status, channel).not.toBe("red");
+      expect(row?.expected_cadence, channel).toBe("not blocking");
+      expect(row?.notes, channel).toMatch(/non-blocking|does not block/i);
+      if (row?.status === "green") {
+        expect(row.latest_source_post_date, channel).toBeTruthy();
+        expect(row.notes, channel).toMatch(/live-readable/i);
+      } else {
+        expect(row?.status, channel).toBe("yellow");
+        expect(row?.notes, channel).toMatch(/not_in_channel/i);
+      }
     }
   });
 
@@ -91,6 +100,7 @@ describe("Phase 1 freshness spine", () => {
     const latestPreviewMarkets = activePreviewMarkets.filter((item) => item.sourcePostedAt?.startsWith(latestPreviewDate ?? ""));
     const liveMarkets = latestPreviewMarkets.filter((item) => item.sourceState === "active_session");
     const finalMarkets = latestPreviewMarkets.filter((item) => item.sourceState === "final_route_totals");
+    const pendingMarkets = latestPreviewMarkets.filter((item) => item.sourceState === "pending_source");
     const hasActivePreviewRoute =
       (scheduleData.records as Array<{ state?: string; eventType?: string }>).some(
         (record) => record.state === "active" && record.eventType === "front_end_preview",
@@ -102,11 +112,20 @@ describe("Phase 1 freshness spine", () => {
       );
 
     expect(latestPreviewMarkets.length).toBeGreaterThanOrEqual(1);
-    expect(liveMarkets.length + finalMarkets.length).toBe(latestPreviewMarkets.length);
+    expect(liveMarkets.length + finalMarkets.length + pendingMarkets.length).toBe(latestPreviewMarkets.length);
     if (hasActivePreviewRoute) {
-      expect(liveMarkets.length).toBeGreaterThanOrEqual(1);
+      expect(liveMarkets.length + pendingMarkets.length).toBeGreaterThanOrEqual(1);
     } else {
-      expect(finalMarkets.length).toBeGreaterThanOrEqual(1);
+      expect(finalMarkets.length + pendingMarkets.length).toBeGreaterThanOrEqual(1);
+    }
+
+    for (const market of pendingMarkets) {
+      expect(market.status).toBe("yellow");
+      expect(market.registered).toBeGreaterThan(0);
+      expect(market.sessionsCompleted).toBeNull();
+      expect(market.totalSessions).toBeNull();
+      expect(market.attendedCutoff).toBe(0);
+      expect(market.sales).toBe(0);
     }
 
     const firstOlderIndex = activePreviewMarkets.findIndex((item) => item.sourcePostedAt?.slice(0, 10) !== latestPreviewDate);
