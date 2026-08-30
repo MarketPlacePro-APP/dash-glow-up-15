@@ -610,6 +610,12 @@ def parse_expo(messages: list[SlackMessage]) -> tuple[dict[str, int | str | None
 
 def market_from_preview(body: str) -> str | None:
     patterns = [
+        # ``parse_messages`` normalizes Slack mrkdwn before this parser runs, so
+        # the same heading normally arrives as ``White Plains Saturday ...``.
+        r"^([A-Za-z][A-Za-z .,/'-]+?)\s+(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b",
+        # Several preview teams post plain Slack-mrkdwn headings with no WK
+        # prefix or pipe: ``*White Plains* *Saturday 8/29/26* ...``.
+        r"^\*+([A-Za-z][A-Za-z .,/'-]+?)\*+\s+\*+(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b",
         # Raw Slack finals may flatten the title to
         # ``Raleigh, NC Team Wayne WK 30 FINAL NUMBERS`` with no pipe before
         # the team/week label. Capture only the leading market segment.
@@ -634,6 +640,7 @@ def market_from_preview(body: str) -> str | None:
             market = match.group(1).strip()
             if re.fullmatch(r"WK\.?\s*\d+", market, re.I):
                 continue
+            market = re.sub(r"\s+Final\s+Numbers\s*$", "", market, flags=re.I)
             market = re.sub(r"\bSaint\b", "St.", market)
             return market.replace("Meyers", "Myers")
     return None
@@ -664,6 +671,15 @@ def normalize_market_name(value: str) -> str:
     # Slack session/final posts often spell Saint Louis while #eventstats and
     # the schedule use St. Louis. Treat saint/st as the same city token.
     market = re.sub(r"\bsaint\b", "st", market)
+    # Some flattened Slack headings let the weekday immediately following the
+    # market bleed into the market capture (for example ``Saint Louis, MO
+    # Wednesday``). Remove only a trailing weekday before state normalization so
+    # the session key still joins its explicit final-route report.
+    market = re.sub(
+        r"(?:,\s*|\s+)(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s*$",
+        "",
+        market,
+    )
     # Slack finals sometimes spell out the trailing state while Preview and
     # schedule sources use the abbreviation (for example, ``Tulsa Oklahoma``
     # versus ``Tulsa, OK``). Remove only a *trailing* full state name so city
@@ -772,6 +788,12 @@ def me_floor_count_source(
 def active_preview_market_display(value: str) -> str:
     market = re.sub(r"\s+", " ", value).strip(" ,")
     market = re.sub(r"\bSaint\b", "St.", market, flags=re.I)
+    market = re.sub(
+        r"\s+(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$",
+        "",
+        market,
+        flags=re.I,
+    )
     market = re.sub(r",\s*(AL|FL|TX|NC|SC|OH|MA|AZ|WA)\b\.?", "", market, flags=re.I)
     market = re.sub(r"\b(Previews?|Preview)\b$", "", market, flags=re.I).strip(" ,")
     return market.replace("Meyers", "Myers")
@@ -1405,6 +1427,17 @@ def market_from_me(body: str) -> str | None:
         market = market.strip(" ,")
         if market and re.search(r"[A-Za-z]", market):
             return market
+
+    # Older human-entered finals can start with ``City. ST Venue ...`` rather
+    # than a workflow-bot ``Market:`` field. Capture only the leading city/state
+    # pair; venue and date text after the state are not part of the market key.
+    heading_market = re.search(
+        r"([A-Z][A-Za-z .'-]*?)[.,]\s*([A-Z]{2})\b",
+        body,
+    )
+    if heading_market:
+        city = re.sub(r"\s+", " ", heading_market.group(1)).strip(" .,\t")
+        return f"{city}, {heading_market.group(2).upper()}"
 
     patterns = [
         r"UPDATED #'?s[:!]?\s*\|\s*([A-Za-z][A-Za-z .,/-]+?)\s*\|",

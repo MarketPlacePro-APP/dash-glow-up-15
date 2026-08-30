@@ -1,3 +1,4 @@
+import { triggerRefreshWorkflow } from "./_lib/githubDispatch.js";
 import { json, methodNotAllowed, serviceUnavailable, unauthorized } from "./_lib/http.js";
 import { isRefreshConflict, readRefreshState, writeRefreshState } from "./_lib/refreshState.js";
 import { isTeamAuthenticated } from "./_lib/security.js";
@@ -27,6 +28,12 @@ export async function POST(request: Request): Promise<Response> {
       message: "Refresh queued. The Studio worker starts within five minutes.",
     };
     await writeRefreshState(queued, etag);
+    try {
+      await triggerRefreshWorkflow(queued.request_id);
+    } catch {
+      // Best-effort: the request is already queued in the gist, so the Studio
+      // worker (or the next scheduled Action) still services it if dispatch fails.
+    }
     return json({ accepted: true, existing: false, refresh: queued }, 202);
   } catch (error) {
     if (isRefreshConflict(error)) return json({ error: "refresh_conflict", retry: true }, 409);
