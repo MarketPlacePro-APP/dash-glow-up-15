@@ -253,13 +253,40 @@ def active_preview_reporting_expected(schedule: dict, now: datetime | None = Non
     return current >= first_session + timedelta(minutes=90)
 
 
-def assert_active_preview_schedule_alignment(schedule: dict, now: datetime | None = None) -> None:
-    source = EXEC_ADAPTERS.read_text()
-    active_rows = re.findall(
-        r"market:\s*'([^']+)'.*?team:\s*'([^']+)'.*?sessionsCompleted:\s*([0-9]+|null),\s*totalSessions:\s*([0-9]+|null).*?sourceState:\s*'active_session'.*?startDate:\s*'([^']+)'.*?latestSessionDate:\s*'([^']+)'",
+def active_preview_adapter_rows(source: str) -> list[tuple[str, str, str, str, str, str]]:
+    block_match = re.search(
+        r"export const activePreviewMarkets: ActivePreviewMarket\[\] = \[(.*?)\n\];",
         source,
         re.S,
     )
+    if not block_match:
+        return []
+    rows: list[tuple[str, str, str, str, str, str]] = []
+    for object_body in re.findall(r"\{(.*?)\n\s*\}", block_match.group(1), re.S):
+        if not re.search(r"sourceState:\s*'active_session'", object_body):
+            continue
+
+        def field(pattern: str) -> str | None:
+            match = re.search(pattern, object_body)
+            return match.group(1) if match else None
+
+        values = (
+            field(r"market:\s*'([^']+)'"),
+            field(r"team:\s*'([^']+)'"),
+            field(r"sessionsCompleted:\s*([0-9]+|null)"),
+            field(r"totalSessions:\s*([0-9]+|null)"),
+            field(r"startDate:\s*'([^']+)'"),
+            field(r"latestSessionDate:\s*'([^']+)'"),
+        )
+        if any(value is None for value in values):
+            fail("AC11 malformed active preview adapter row")
+        rows.append(values)  # type: ignore[arg-type]
+    return rows
+
+
+def assert_active_preview_schedule_alignment(schedule: dict, now: datetime | None = None) -> None:
+    source = EXEC_ADAPTERS.read_text()
+    active_rows = active_preview_adapter_rows(source)
     records = schedule.get("records") or []
     active_preview_route_blocks = [
         block for block in schedule.get("route_blocks") or []

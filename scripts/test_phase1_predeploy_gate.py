@@ -42,6 +42,25 @@ def schedule(times: str = "10:00AM & 2:00PM") -> dict:
 
 
 class ActivePreviewReportingWindowTests(unittest.TestCase):
+    def test_pending_rows_do_not_bleed_into_following_active_row(self) -> None:
+        source = """export const activePreviewMarkets: ActivePreviewMarket[] = [
+  {
+    market: 'Baltimore', team: 'Team Wayne / #eventstats',
+    sessionsCompleted: null, totalSessions: null,
+    sourceState: 'pending_source', startDate: '2026-09-09'
+  },
+  {
+    market: 'White Plains', team: 'Team Vogel / #teamvogel',
+    sessionsCompleted: 2, totalSessions: 10,
+    sourceState: 'active_session', startDate: '2026-08-29',
+    latestSessionDate: '2026-08-29'
+  }
+];"""
+        self.assertEqual(
+            module.active_preview_adapter_rows(source),
+            [("White Plains", "Team Vogel / #teamvogel", "2", "10", "2026-08-29", "2026-08-29")],
+        )
+
     def test_pre_session_refresh_does_not_require_nonexistent_slack_rows(self) -> None:
         now = datetime(2026, 7, 25, 8, 5, tzinfo=TZ)
         self.assertFalse(module.active_preview_reporting_expected(schedule(), now))
