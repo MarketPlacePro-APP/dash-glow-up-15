@@ -13,9 +13,9 @@
 #   TLWB_KPI_DEPLOY=0 (default here) -> fetch + generate + gates + build, NO deploy.
 #   TLWB_KPI_DEPLOY=1                -> also pull/build/deploy to Vercel (Phase 2).
 #
-# Required for a full data refresh (fail-soft skips are logged, not silent):
-#   - Google sheets: anonymous export works today; set GOOGLE_SERVICE_ACCOUNT_JSON
-#     for reliable authenticated export.
+# Required for a full data refresh (missing required inputs fail closed):
+#   - Google sheets: set GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_OAUTH_TOKEN_JSON
+#     for the privately shared Market Comparisons source.
 #   - Slack: SLACK_BOT_TOKEN (bot invited to the required channels).
 #   - Market_Comparisons.xlsx: a Studio-only static input (see ci/README.md).
 set -euo pipefail
@@ -30,6 +30,14 @@ EXPORTS_DIR="$DATA_DIR/google_exports"
 DEPLOY_ENABLED="${TLWB_KPI_DEPLOY:-0}"
 FULL_REFRESH="${TLWB_CI_FULL_REFRESH:-1}"
 mkdir -p "$EXPORTS_DIR"
+
+if [[ "$FULL_REFRESH" == "1" ]]; then
+  [[ -n "${SLACK_BOT_TOKEN:-}" ]] || { log "ERROR: SLACK_BOT_TOKEN is required for a full refresh"; exit 40; }
+  if [[ -z "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" && -z "${GOOGLE_OAUTH_TOKEN_JSON:-}" ]]; then
+    log "ERROR: GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_OAUTH_TOKEN_JSON is required for a full refresh"
+    exit 41
+  fi
+fi
 
 if [[ "$(basename "$SRC")" != "dash-glow-up-15" ]]; then
   log "WARNING: repo dir is '$(basename "$SRC")', but the committed generators expect it to be named 'dash-glow-up-15' (they resolve data via parents[2]). Check out the repo into <workspace-main>/dash-glow-up-15."
@@ -57,7 +65,7 @@ PY
 
 fetch_sheet() {
   local name="$1" id="$2" out="$EXPORTS_DIR/$1.xlsx"
-  if [[ -n "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" ]]; then
+  if [[ -n "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" || -n "${GOOGLE_OAUTH_TOKEN_JSON:-}" ]]; then
     if python3 "$SRC/ci/fetch_google_sheet.py" --id "$id" --out "$out"; then
       validate_xlsx "$out"; return 0
     fi
@@ -104,7 +112,8 @@ if [[ -n "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" || -n "${GOOGLE_OAUTH_TOKEN_JSON:-}"
   python3 "$SRC/ci/fetch_google_sheet.py" --id "$MC_SHEET_ID" --out "$MARKET_COMPARISONS"
   validate_xlsx "$MARKET_COMPARISONS"
 else
-  log "SKIP Market Comparisons fetch: set GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_OAUTH_TOKEN_JSON (sheet is privately shared; anon export 401)"
+  log "SKIP Market Comparisons fetch: no Google credential (sheet is privately shared; anon export 401)"
+  [[ "$FULL_REFRESH" != "1" ]] || exit 41
 fi
 
 # --- Data regeneration ----------------------------------------------------------
@@ -114,11 +123,15 @@ if [[ "$FULL_REFRESH" == "1" && -f "$MARKET_COMPARISONS" ]]; then
 
   if [[ -n "${SLACK_BOT_TOKEN:-}" ]]; then
     SLACK_SNAPSHOT="$DATA_DIR/slack-source-$(date +%Y%m%d-%H%M%S).txt"
-    python3 "$SRC/ci/slack_channel_history.py" --out "$SLACK_SNAPSHOT" \
-      eventstats expo teamtony teamshaw teamdrecksel teamnick teamwayne teamdent teamwyman teamvogel teammillar
+    SLACK_STATUS="$DATA_DIR/slack-source-status.json"
+    python3 "$SRC/ci/slack_channel_history.py" --out "$SLACK_SNAPSHOT" --status-out "$SLACK_STATUS" \
+      eventstats expo teamtony teamshaw teamdrecksel teamnick teamwayne teamdent teamwyman teamvogel teammillar \
+      --optional front-end-team ticketsales collections-allteams refunds-allteams fe-confirmations-team
     ( cd "$WORKSPACE_MAIN" && python3 "$SRC/scripts/update_tlwb_slack_operational_sections.py" --slack "$SLACK_SNAPSHOT" --src "$SRC" )
+    ( cd "$SRC" && python3 ci/phase1_freshness_ci.py --status "$SLACK_STATUS" )
   else
     log "SKIP: SLACK_BOT_TOKEN not set; leaving committed Slack adapters in place"
+    [[ "$FULL_REFRESH" != "1" ]] || exit 40
   fi
 else
   log "SKIP full regenerate: TLWB_CI_FULL_REFRESH must be 1 and Market Comparisons must be fetched (needs a Google credential; see ci/README.md)"
@@ -128,6 +141,18 @@ fi
 cd "$SRC"
 log "Installing dependencies"
 npm ci
+log "Running parser and business-truth gates"
+python3 scripts/validate_tlwb_market_roster.py --src "$SRC" --slack "$SLACK_SNAPSHOT"
+python3 scripts/test_marketing_history_coverage.py
+python3 scripts/test_marketing_preview_no_drop.py
+python3 scripts/test_workshop_schedule_parser.py
+python3 scripts/test_upcoming_me_pipeline.py
+python3 scripts/test_preview_final_selection.py
+python3 scripts/test_workshop_abc_parser.py
+python3 scripts/test_tlwb_preview_history.py
+python3 scripts/test_phase1_predeploy_gate.py
+python3 scripts/phase1_predeploy_gate.py
+python3 scripts/generate_analytics_brain_data.py
 log "Running tests (NODE_ENV=test)"
 NODE_ENV=test npm test -- --run
 log "Building production bundle (NODE_ENV=production)"

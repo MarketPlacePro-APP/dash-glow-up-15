@@ -10,7 +10,9 @@ reproducing the `workspace-main/dash-glow-up-15` layout they expect.
 - `.github/workflows/tlwb-kpi-refresh.yml` — Phase 1 scheduled/on-demand refresh,
   **no deploy**. Fetches sources, regenerates data, runs gates + build.
 - `.github/workflows/tlwb-kpi-freshness-monitor.yml` — polls `/api/status` every
-  30 min and fails if the last publish is older than `MAX_AGE_HOURS` (default 6).
+  30 min and fails when the latest source check predates the most recent due
+  08:05/12:05/16:05/20:05 Mountain cycle after a 90-minute grace period, or when
+  that due check reported failure. A successful no-change check remains healthy.
 - `ci/tlwb_kpi_ci_refresh.sh` — portable driver mirroring
   `tlwb_kpi_daily_refresh.sh` without Studio paths/Keychain.
 - `ci/fetch_google_sheet.py` — authenticated (service-account) sheet export;
@@ -43,13 +45,19 @@ Until `TLWB_DISPATCH_TOKEN` is set on Vercel the dispatch is skipped, and until
 `TLWB_WORKER_TOKEN` is a GitHub secret the workflow's status callbacks are skipped
 — so the whole button loop stays dormant through Phase 1 and activates at cutover.
 
-## Still needed from the Studio (reproducibility gaps)
+## Default-branch activation requirement
 
-These are read by the pipeline but are **not yet in the repo**, so a fully green
-headless run is blocked until they are committed or otherwise provided:
+GitHub only runs `workflow_dispatch`, `repository_dispatch`, and scheduled workflows
+when the workflow file exists on the repository's default branch. Merge this work
+into `harlow/production-snapshot`, then make that branch the repository default
+before attempting the Phase 1 dispatch. Vercel's Git-linked production branch
+remains `main`; changing the GitHub default does not change the Vercel production
+branch or enable the guarded deploy step.
 
-1. `src/lib/sourceHealthStatus.ts` — reconstructed here from the test contract;
-   replace with the canonical Studio version if it differs.
+## Reconciled Studio inputs
+
+1. `src/lib/sourceHealthStatus.ts` — use the canonical Studio implementation, not
+   a reconstruction from tests.
 2. Market Comparisons — RESOLVED here: the driver now fetches Lindsey's live sheet
    (`1fCb7-1_TT2w4lzM6mQj38rsnieUdoruk_Eg6_psjB0Y`, owned by
    lindsey@taxlienwealthbuilders.com, updated regularly) fresh each run, replacing
@@ -58,17 +66,17 @@ headless run is blocked until they are committed or otherwise provided:
    the sheet, or the Studio's `sw@` token as `GOOGLE_OAUTH_TOKEN_JSON`. Optional
    cleanup for Harlow: rename the misleading `lindsey_shared_2026-04-25` path to a
    `_latest` export in `generate-live-data-review.py`.
-3. A coherent test/data baseline. RESOLVED here: the `teammillar` required-channel
-   mismatch (test now matches `data/source_health.json`), and the Slack snapshot
-   format (`slack_channel_history.py` output now round-trips through
-   `scripts/update_tlwb_slack_operational_sections.py::parse_messages`). STILL
-   data-driven and needing Harlow's canonical data: an optional-coverage row in
-   `data/source_health.json` renders `green` where the test expects `yellow`, and
-   the preview adapters lack the `sourceState` the test asserts. Commit matching
-   data so `npm test` is green.
+3. A coherent test/data baseline. The `teammillar` required-channel mismatch and
+   Slack snapshot format are reconciled. Verified live-readable optional channels
+   stay truthfully green but non-blocking; inaccessible optional channels are
+   yellow. Pre-event Preview rows already carry `sourceState: pending_source`, so
+   the canonical test accepts that state instead of relabeling source-backed
+   pending rows as active/final.
 
-The Studio's working tree is internally consistent at deploy time; the git
-snapshot is not, which is why these committed data reconciliations are required.
+The CI driver refreshes static source-health and Phase 2A audit artifacts from the
+headless Slack status bundle, then runs the parser regressions, predeploy gate,
+Vitest suite, production build, and lint. The SQLite warehouse remains a separate
+Phase 2 cutover gate; Phase 1 does not replace the Studio's warehouse writer.
 
 ## Phases
 

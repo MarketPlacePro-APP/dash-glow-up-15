@@ -1,10 +1,10 @@
 name: TLWB KPI Freshness Monitor
 
 # Independent, off-Studio staleness alarm. Polls the protected /api/status
-# endpoint and fails (which notifies repo watchers / can page via a notify step)
-# when the last successful publish is older than the allowed threshold. This is
-# the safety net the current Studio-resident watchdog cannot provide, because it
-# runs even when the Studio is offline.
+# endpoint and fails when the latest source check predates the latest due owner
+# cycle after its grace period or that check reported failure. This is the safety
+# net the current Studio-resident watchdog cannot provide, because it runs even
+# when the Studio is offline.
 
 on:
   workflow_dispatch: {}
@@ -16,27 +16,53 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      MAX_AGE_HOURS: "6"
+      GRACE_MINUTES: "90"
       TLWB_KPI_AUTH_USERNAME: ${{ secrets.TLWB_KPI_AUTH_USERNAME }}
       TLWB_KPI_AUTH_PASSWORD: ${{ secrets.TLWB_KPI_AUTH_PASSWORD }}
     steps:
-      - name: Poll /api/status and assert freshness
+      - name: Poll /api/status and assert scheduled freshness
         run: |
           set -euo pipefail
-          status="$(curl -sS -u "$TLWB_KPI_AUTH_USERNAME:$TLWB_KPI_AUTH_PASSWORD" https://tlwb-kpi.vercel.app/api/status)"
-          echo "$status" | python3 - "$MAX_AGE_HOURS" <<'PY'
+          status_file="$(mktemp)"
+          trap 'rm -f "$status_file"' EXIT
+          curl --fail-with-body -sS --retry 3 --retry-all-errors \
+            -u "$TLWB_KPI_AUTH_USERNAME:$TLWB_KPI_AUTH_PASSWORD" \
+            https://tlwb-kpi.vercel.app/api/status > "$status_file"
+          python3 - "$GRACE_MINUTES" "$status_file" <<'PY'
           import json, sys
-          from datetime import datetime, timezone
-          raw = sys.stdin.read()
-          max_age_hours = float(sys.argv[1])
+          from datetime import datetime, timedelta
+          from zoneinfo import ZoneInfo
+
+          grace = timedelta(minutes=float(sys.argv[1]))
+          raw = open(sys.argv[2], encoding="utf-8").read()
           data = json.loads(raw)
-          published = data.get("last_published") or data.get("refresh", {}).get("last_published_at")
-          if not published:
-              raise SystemExit(f"No last_published in status payload: {raw[:300]}")
-          ts = datetime.fromisoformat(published.replace("Z", "+00:00"))
-          age_hours = (datetime.now(timezone.utc) - ts).total_seconds() / 3600
-          print(f"last_published={published} age_hours={age_hours:.2f} threshold={max_age_hours}")
-          if age_hours > max_age_hours:
-              raise SystemExit(f"STALE: dashboard last published {age_hours:.1f}h ago (> {max_age_hours}h)")
-          print("OK: dashboard is fresh")
+          refresh = data.get("refresh", {})
+          completed = refresh.get("last_check_completed_at") or data.get("last_checked")
+          result = refresh.get("last_check_result")
+          if not completed:
+              raise SystemExit(f"No last_check_completed_at in status payload: {raw[:300]}")
+
+          zone = ZoneInfo("America/Denver")
+          now = datetime.now(zone)
+          completed_at = datetime.fromisoformat(completed.replace("Z", "+00:00")).astimezone(zone)
+          candidates = []
+          for day_offset in (0, -1):
+              day = (now + timedelta(days=day_offset)).date()
+              for hour in (8, 12, 16, 20):
+                  scheduled = datetime(day.year, day.month, day.day, hour, 5, tzinfo=zone)
+                  if scheduled + grace <= now:
+                      candidates.append(scheduled)
+          expected = max(candidates)
+          age_hours = (now - completed_at).total_seconds() / 3600
+          print(
+              f"last_check_completed={completed_at.isoformat()} result={result} age_hours={age_hours:.2f} "
+              f"latest_due_cycle={expected.isoformat()} grace_minutes={grace.total_seconds() / 60:.0f}"
+          )
+          if completed_at < expected:
+              raise SystemExit(
+                  f"STALE: latest check {completed_at.isoformat()} predates due cycle {expected.isoformat()}"
+              )
+          if result not in {"deployed", "no_change"}:
+              raise SystemExit(f"FAILED: latest due source check result is {result!r}")
+          print("OK: latest due source check completed successfully")
           PY

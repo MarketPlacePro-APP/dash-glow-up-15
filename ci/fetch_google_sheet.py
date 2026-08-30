@@ -26,7 +26,10 @@ from io import BytesIO
 from pathlib import Path
 
 XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-SA_SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
+SA_SCOPES = [
+    "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/spreadsheets.readonly",
+]
 
 
 def load_credentials():
