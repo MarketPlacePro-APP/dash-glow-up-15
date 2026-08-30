@@ -610,6 +610,9 @@ def parse_expo(messages: list[SlackMessage]) -> tuple[dict[str, int | str | None
 
 def market_from_preview(body: str) -> str | None:
     patterns = [
+        # Several preview teams post plain Slack-mrkdwn headings with no WK
+        # prefix or pipe: ``*White Plains* *Saturday 8/29/26* ...``.
+        r"^\*+([A-Za-z][A-Za-z .,/'-]+?)\*+\s+\*+(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b",
         # Raw Slack finals may flatten the title to
         # ``Raleigh, NC Team Wayne WK 30 FINAL NUMBERS`` with no pipe before
         # the team/week label. Capture only the leading market segment.
