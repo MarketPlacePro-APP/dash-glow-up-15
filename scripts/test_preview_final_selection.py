@@ -6,7 +6,7 @@ import sys
 import unittest
 from pathlib import Path
 
-MODULE_PATH = Path(__file__).resolve().parents[2] / "scripts" / "update_tlwb_slack_operational_sections.py"
+MODULE_PATH = Path(__file__).with_name("update_tlwb_slack_operational_sections.py")
 SPEC = importlib.util.spec_from_file_location("tlwb_slack_updater", MODULE_PATH)
 assert SPEC and SPEC.loader
 module = importlib.util.module_from_spec(SPEC)
@@ -41,6 +41,12 @@ def result(channel: str, posted_at: str, market: str, date: str, speaker: str, c
 
 
 class PreviewFinalSelectionTests(unittest.TestCase):
+    def test_flattened_weekday_suffix_joins_saint_louis_session_to_final(self):
+        self.assertEqual(
+            module.normalize_market_name("Saint Louis, MO Wednesday"),
+            module.normalize_market_name("St. Louis, MO"),
+        )
+
     def test_preserves_team_channel_coverage_and_uses_explicit_team_and_speaker(self):
         # Bundle order intentionally groups #teamwayne first, reproducing the old
         # rows[:6] bug that hid all #teamvogel cards.

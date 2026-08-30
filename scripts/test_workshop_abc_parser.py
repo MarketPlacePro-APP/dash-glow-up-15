@@ -7,7 +7,7 @@ import sys
 import unittest
 from pathlib import Path
 
-MODULE_PATH = Path(__file__).resolve().parents[2] / "scripts" / "update_tlwb_slack_operational_sections.py"
+MODULE_PATH = Path(__file__).with_name("update_tlwb_slack_operational_sections.py")
 SPEC = importlib.util.spec_from_file_location("tlwb_slack_updater_abc", MODULE_PATH)
 assert SPEC and SPEC.loader
 module = importlib.util.module_from_spec(SPEC)

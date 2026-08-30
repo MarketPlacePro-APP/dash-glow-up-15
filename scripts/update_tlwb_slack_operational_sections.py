@@ -664,6 +664,15 @@ def normalize_market_name(value: str) -> str:
     # Slack session/final posts often spell Saint Louis while #eventstats and
     # the schedule use St. Louis. Treat saint/st as the same city token.
     market = re.sub(r"\bsaint\b", "st", market)
+    # Some flattened Slack headings let the weekday immediately following the
+    # market bleed into the market capture (for example ``Saint Louis, MO
+    # Wednesday``). Remove only a trailing weekday before state normalization so
+    # the session key still joins its explicit final-route report.
+    market = re.sub(
+        r"(?:,\s*|\s+)(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s*$",
+        "",
+        market,
+    )
     # Slack finals sometimes spell out the trailing state while Preview and
     # schedule sources use the abbreviation (for example, ``Tulsa Oklahoma``
     # versus ``Tulsa, OK``). Remove only a *trailing* full state name so city

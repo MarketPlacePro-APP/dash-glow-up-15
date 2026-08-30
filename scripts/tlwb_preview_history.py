@@ -30,7 +30,7 @@ PREVIEW_CHANNELS = {
     "teammillar": "Team Millar",
 }
 DEFAULT_DB = Path("/Users/seanwilliams/.openclaw/workspace/outputs/tlwb_source_archive.db")
-UPDATER_PATH = Path(__file__).resolve().parents[2] / "scripts" / "update_tlwb_slack_operational_sections.py"
+UPDATER_PATH = Path(__file__).with_name("update_tlwb_slack_operational_sections.py")
 
 
 def load_updater():
