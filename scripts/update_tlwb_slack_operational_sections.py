@@ -640,6 +640,7 @@ def market_from_preview(body: str) -> str | None:
             market = match.group(1).strip()
             if re.fullmatch(r"WK\.?\s*\d+", market, re.I):
                 continue
+            market = re.sub(r"\s+Final\s+Numbers\s*$", "", market, flags=re.I)
             market = re.sub(r"\bSaint\b", "St.", market)
             return market.replace("Meyers", "Myers")
     return None
