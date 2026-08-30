@@ -22,7 +22,7 @@ reproducing the `workspace-main/dash-glow-up-15` layout they expect.
 
 | Secret | Used for |
 | --- | --- |
-| `GOOGLE_SERVICE_ACCOUNT_JSON` | Reliable authenticated sheet export (anon fallback works today) |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` or `GOOGLE_OAUTH_TOKEN_JSON` | Authenticated export of the privately-shared "Market Comparisons" sheet (the 5 public sheets export anonymously). Use a service account shared as Viewer on the sheet, or the Studio's `sw@` authorized-user token JSON. |
 | `SLACK_BOT_TOKEN` | Slack channel history (`channels:history`, bot invited to channels) |
 | `TLWB_KPI_AUTH_USERNAME` / `TLWB_KPI_AUTH_PASSWORD` | Freshness monitor + Phase 2 route verification |
 | `VERCEL_TOKEN` | Phase 2 deploy only (`org team_eHUDYQiAtTZN5FZP7mhL6AJu`, `project prj_bYcixEpEvztrj98MPbM0elNf7uU1`) |
@@ -50,8 +50,14 @@ headless run is blocked until they are committed or otherwise provided:
 
 1. `src/lib/sourceHealthStatus.ts` — reconstructed here from the test contract;
    replace with the canonical Studio version if it differs.
-2. `data/lindsey_shared_2026-04-25/Market_Comparisons.xlsx` — a static Studio-only
-   input still read by `generate-live-data-review.py`.
+2. Market Comparisons — RESOLVED here: the driver now fetches Lindsey's live sheet
+   (`1fCb7-1_TT2w4lzM6mQj38rsnieUdoruk_Eg6_psjB0Y`, owned by
+   lindsey@taxlienwealthbuilders.com, updated regularly) fresh each run, replacing
+   the frozen 2026-04-25 export. It is privately shared (anon export returns 401),
+   so it needs a Google credential: either a service account shared as Viewer on
+   the sheet, or the Studio's `sw@` token as `GOOGLE_OAUTH_TOKEN_JSON`. Optional
+   cleanup for Harlow: rename the misleading `lindsey_shared_2026-04-25` path to a
+   `_latest` export in `generate-live-data-review.py`.
 3. A coherent test/data baseline. RESOLVED here: the `teammillar` required-channel
    mismatch (test now matches `data/source_health.json`), and the Slack snapshot
    format (`slack_channel_history.py` output now round-trips through

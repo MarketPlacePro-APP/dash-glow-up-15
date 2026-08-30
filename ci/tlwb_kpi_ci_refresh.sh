@@ -90,8 +90,24 @@ log "Fetching Replit inside-sales and collections feeds"
 fetch_json "https://utltlwb-stats.replit.app/api/tlwb/inside-sales-dpl" "$DATA_DIR/inside_replit_latest.json"
 fetch_json "https://utltlwb-stats.replit.app/api/tlwb/collections-performance" "$DATA_DIR/collections_replit_latest.json"
 
-# --- Data regeneration (requires the remaining Studio-only inputs) --------------
+# --- Source fetch: Lindsey's "Market Comparisons" (privately shared, auth req) --
+# Native Google Sheet owned by lindsey@taxlienwealthbuilders.com, shared with sw@.
+# Anonymous export returns 401, so this needs GOOGLE_SERVICE_ACCOUNT_JSON (SA
+# shared as Viewer) or GOOGLE_OAUTH_TOKEN_JSON (the sw@ token). Fetched fresh each
+# run to the path generate-live-data-review.py expects, replacing the frozen
+# 2026-04-25 export.
 MARKET_COMPARISONS="$DATA_DIR/lindsey_shared_2026-04-25/Market_Comparisons.xlsx"
+MC_SHEET_ID="1fCb7-1_TT2w4lzM6mQj38rsnieUdoruk_Eg6_psjB0Y"
+if [[ -n "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" || -n "${GOOGLE_OAUTH_TOKEN_JSON:-}" ]]; then
+  log "Fetching Market Comparisons sheet (authenticated)"
+  mkdir -p "$(dirname "$MARKET_COMPARISONS")"
+  python3 "$SRC/ci/fetch_google_sheet.py" --id "$MC_SHEET_ID" --out "$MARKET_COMPARISONS"
+  validate_xlsx "$MARKET_COMPARISONS"
+else
+  log "SKIP Market Comparisons fetch: set GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_OAUTH_TOKEN_JSON (sheet is privately shared; anon export 401)"
+fi
+
+# --- Data regeneration ----------------------------------------------------------
 if [[ "$FULL_REFRESH" == "1" && -f "$MARKET_COMPARISONS" ]]; then
   log "Regenerating dashboard data from fetched sources"
   ( cd "$SRC" && python3 scripts/generate-live-data-review.py )
@@ -105,7 +121,7 @@ if [[ "$FULL_REFRESH" == "1" && -f "$MARKET_COMPARISONS" ]]; then
     log "SKIP: SLACK_BOT_TOKEN not set; leaving committed Slack adapters in place"
   fi
 else
-  log "SKIP full regenerate: set TLWB_CI_FULL_REFRESH=1 and provide $MARKET_COMPARISONS (Studio-only input, see ci/README.md)"
+  log "SKIP full regenerate: TLWB_CI_FULL_REFRESH must be 1 and Market Comparisons must be fetched (needs a Google credential; see ci/README.md)"
 fi
 
 # --- Gates: tests, build, lint --------------------------------------------------
