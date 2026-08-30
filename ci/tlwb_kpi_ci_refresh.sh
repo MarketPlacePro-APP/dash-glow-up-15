@@ -44,11 +44,17 @@ if [[ "$(basename "$SRC")" != "dash-glow-up-15" ]]; then
 fi
 
 # --- Source fetch: Google Sheets (anon export, authenticated fallback) ---------
-declare -A SHEETS=(
-  [numbers_per_session_1dfke_latest]="1dfke_KCSGHNfnG_FUjAwo1TPAXFtgLEh9tE_XqQB0TU"
-  [upcoming_schedule_1F05mJ_latest]="1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY"
-  [workshop_schedule_sheet_1psHz1_latest]="1psHz1be5AdbpjLu4vWEIvecf6CLeuRWodBoHu20Dotw"
-  [ws_sales_tracker_1CmJ_latest]="1CmJYo4jIiweNArfZvvKdb0q_WlLtLsNH1UqHaad5gxQ"
+SHEET_NAMES=(
+  numbers_per_session_1dfke_latest
+  upcoming_schedule_1F05mJ_latest
+  workshop_schedule_sheet_1psHz1_latest
+  ws_sales_tracker_1CmJ_latest
+)
+SHEET_IDS=(
+  1dfke_KCSGHNfnG_FUjAwo1TPAXFtgLEh9tE_XqQB0TU
+  1F05mJPz4m8Kzxc8ROTQc4puRBky263ghSUMTg4kxKqY
+  1psHz1be5AdbpjLu4vWEIvecf6CLeuRWodBoHu20Dotw
+  1CmJYo4jIiweNArfZvvKdb0q_WlLtLsNH1UqHaad5gxQ
 )
 
 validate_xlsx() {
@@ -78,7 +84,9 @@ fetch_sheet() {
 }
 
 log "Fetching structured Google Sheet exports"
-for name in "${!SHEETS[@]}"; do fetch_sheet "$name" "${SHEETS[$name]}"; done
+for index in "${!SHEET_NAMES[@]}"; do
+  fetch_sheet "${SHEET_NAMES[$index]}" "${SHEET_IDS[$index]}"
+done
 
 # --- Source fetch: Replit JSON feeds (public) ----------------------------------
 fetch_json() {
