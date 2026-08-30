@@ -16,6 +16,13 @@ SPEC.loader.exec_module(module)
 
 
 class WorkshopAbcParserTests(unittest.TestCase):
+    def test_extracts_market_from_legacy_city_state_venue_heading(self) -> None:
+        body = (
+            "*Atlanta. GA Westin Atlanta Perimeter North* May 21-23 2026 "
+            "BU’s: 61 Total Sales: 19 Written: $242,000 Collected: $120,755"
+        )
+        self.assertEqual(module.market_from_me(body), "Atlanta, GA")
+
     def test_extracts_market_from_dated_workflow_bot_field(self) -> None:
         body = (
             "<@U02P1N1EAF5> submitted Event Stats. | "

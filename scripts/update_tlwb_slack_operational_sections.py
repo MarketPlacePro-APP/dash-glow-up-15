@@ -1415,6 +1415,17 @@ def market_from_me(body: str) -> str | None:
         if market and re.search(r"[A-Za-z]", market):
             return market
 
+    # Older human-entered finals can start with ``City. ST Venue ...`` rather
+    # than a workflow-bot ``Market:`` field. Capture only the leading city/state
+    # pair; venue and date text after the state are not part of the market key.
+    heading_market = re.search(
+        r"^[*_`\s]*([A-Za-z][A-Za-z .'-]*?)[.,]\s*([A-Z]{2})\b",
+        body,
+    )
+    if heading_market:
+        city = re.sub(r"\s+", " ", heading_market.group(1)).strip(" .,\t")
+        return f"{city}, {heading_market.group(2).upper()}"
+
     patterns = [
         r"UPDATED #'?s[:!]?\s*\|\s*([A-Za-z][A-Za-z .,/-]+?)\s*\|",
         r"([A-Za-z][A-Za-z .,/-]+?)\s+Workshop",
