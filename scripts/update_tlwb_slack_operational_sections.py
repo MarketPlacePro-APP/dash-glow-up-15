@@ -787,6 +787,12 @@ def me_floor_count_source(
 def active_preview_market_display(value: str) -> str:
     market = re.sub(r"\s+", " ", value).strip(" ,")
     market = re.sub(r"\bSaint\b", "St.", market, flags=re.I)
+    market = re.sub(
+        r"\s+(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$",
+        "",
+        market,
+        flags=re.I,
+    )
     market = re.sub(r",\s*(AL|FL|TX|NC|SC|OH|MA|AZ|WA)\b\.?", "", market, flags=re.I)
     market = re.sub(r"\b(Previews?|Preview)\b$", "", market, flags=re.I).strip(" ,")
     return market.replace("Meyers", "Myers")

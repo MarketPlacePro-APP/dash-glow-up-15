@@ -58,6 +58,10 @@ class PreviewFinalSelectionTests(unittest.TestCase):
 
     def test_flattened_weekday_suffix_joins_saint_louis_session_to_final(self):
         self.assertEqual(
+            module.active_preview_market_display("Atlanta, Georgia Saturday"),
+            "Atlanta, Georgia",
+        )
+        self.assertEqual(
             module.normalize_market_name("Saint Louis, MO Wednesday"),
             module.normalize_market_name("St. Louis, MO"),
         )
