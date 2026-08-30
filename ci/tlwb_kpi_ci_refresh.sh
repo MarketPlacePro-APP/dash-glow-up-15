@@ -71,16 +71,24 @@ PY
 
 fetch_sheet() {
   local name="$1" id="$2" out="$EXPORTS_DIR/$1.xlsx"
-  if [[ -n "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" || -n "${GOOGLE_OAUTH_TOKEN_JSON:-}" ]]; then
-    if python3 "$SRC/ci/fetch_google_sheet.py" --id "$id" --out "$out"; then
-      validate_xlsx "$out"; return 0
-    fi
-    log "WARN: authenticated export failed for $name; falling back to anonymous export"
-  fi
-  curl -sSL --retry 4 --retry-all-errors --retry-delay 2 --connect-timeout 20 --max-time 120 \
+  # Preserve native workbook formatting/date metadata whenever the public export
+  # is available. The Sheets-API values fallback intentionally reconstructs only
+  # cell values and is therefore unsuitable as the first choice for schedule
+  # workbooks whose date parsing depends on native XLSX metadata.
+  if curl -sSL --retry 4 --retry-all-errors --retry-delay 2 --connect-timeout 20 --max-time 120 \
     -A "Mozilla/5.0 (TLWB KPI CI Refresh)" \
-    "https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx" -o "$out"
-  validate_xlsx "$out"
+    "https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx" -o "$out" \
+    && validate_xlsx "$out"; then
+    return 0
+  fi
+  log "WARN: anonymous export failed for $name; trying authenticated export"
+  if [[ -n "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" || -n "${GOOGLE_OAUTH_TOKEN_JSON:-}" ]]; then
+    python3 "$SRC/ci/fetch_google_sheet.py" --id "$id" --out "$out"
+    validate_xlsx "$out"
+    return 0
+  fi
+  log "ERROR: no authenticated fallback is configured for $name"
+  return 1
 }
 
 log "Fetching structured Google Sheet exports"
