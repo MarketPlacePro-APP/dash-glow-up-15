@@ -168,7 +168,32 @@ python3 scripts/test_workshop_abc_parser.py
 python3 scripts/test_tlwb_preview_history.py
 python3 scripts/test_phase1_predeploy_gate.py
 python3 scripts/phase1_predeploy_gate.py
-python3 scripts/generate_analytics_brain_data.py
+if [[ -n "${TLWB_ANALYTICS_BRAIN_EXPORT_ROOT:-}" && -d "${TLWB_ANALYTICS_BRAIN_EXPORT_ROOT}" ]]; then
+  python3 scripts/generate_analytics_brain_data.py
+else
+  log "Analytics Brain live exports are not mounted in Phase 1; verifying the committed authenticated snapshot"
+  python3 - "$SRC/src/data/analyticsBrain.generated.json" <<'PY'
+import json, sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+rows = data.get("rows") or {}
+required = ("eventSummary", "channels", "campaigns", "adSets", "ads")
+missing = [name for name in required if not isinstance(rows.get(name), list) or not rows[name]]
+source = data.get("source") or {}
+qa = data.get("qa") or {}
+if data.get("version") != 1 or missing:
+    raise SystemExit(f"Invalid committed Analytics Brain artifact; missing rows: {missing}")
+if not source.get("authenticatedExport") or not source.get("batchBound") or not qa.get("sameBatch"):
+    raise SystemExit("Committed Analytics Brain artifact lacks authenticated same-batch provenance")
+print(
+    "OK: committed Analytics Brain snapshot "
+    f"batch={data.get('batchToken')} exported_at={source.get('exportedAt')} "
+    + " ".join(f"{name}={len(rows[name])}" for name in required)
+)
+PY
+fi
 log "Running tests (NODE_ENV=test)"
 NODE_ENV=test npm test -- --run
 log "Building production bundle (NODE_ENV=production)"

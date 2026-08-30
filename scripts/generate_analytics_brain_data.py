@@ -10,13 +10,20 @@ from __future__ import annotations
 import csv
 import json
 import math
+import os
 import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-EXPORT_ROOT = Path("/Users/seanwilliams/.hermes/profiles/harlow/data/analytics_brain/exports")
-AUDIT_ROOT = Path("/Users/seanwilliams/.hermes/profiles/harlow/data/analytics_brain/overnight_runs")
+EXPORT_ROOT = Path(os.environ.get(
+    "TLWB_ANALYTICS_BRAIN_EXPORT_ROOT",
+    "/Users/seanwilliams/.hermes/profiles/harlow/data/analytics_brain/exports",
+))
+AUDIT_ROOT = Path(os.environ.get(
+    "TLWB_ANALYTICS_BRAIN_AUDIT_ROOT",
+    "/Users/seanwilliams/.hermes/profiles/harlow/data/analytics_brain/overnight_runs",
+))
 DEFAULT_OUTPUT = Path(__file__).resolve().parents[1] / "src/data/analyticsBrain.generated.json"
 REQUIRED_REPORTS = {"event-summary": 8, "ad-channel": 6, "campaign-ads": 3}
 EXCLUDED_REPORTS = [

@@ -42,6 +42,7 @@ jobs:
     env:
       TLWB_KPI_DEPLOY: "0" # Phase 1: never deploy from CI yet.
       TLWB_CI_FULL_REFRESH: "1"
+      TLWB_PHASE1_STATIC_ONLY: "1" # SQLite durability remains a separate Phase 2 gate.
       GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
       GOOGLE_OAUTH_TOKEN_JSON: ${{ secrets.GOOGLE_OAUTH_TOKEN_JSON }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -80,7 +81,9 @@ jobs:
       - name: Run refresh pipeline (no deploy)
         id: refresh
         working-directory: workspace-main/dash-glow-up-15
-        run: bash ci/tlwb_kpi_ci_refresh.sh 2>&1 | tee "$GITHUB_WORKSPACE/tlwb-refresh.log"
+        run: |
+          set -o pipefail
+          bash ci/tlwb_kpi_ci_refresh.sh 2>&1 | tee "$GITHUB_WORKSPACE/tlwb-refresh.log"
 
       - name: Assert Phase 1 did not deploy
         if: steps.refresh.outcome == 'success'

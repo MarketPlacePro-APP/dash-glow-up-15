@@ -74,9 +74,13 @@ branch or enable the guarded deploy step.
    pending rows as active/final.
 
 The CI driver refreshes static source-health and Phase 2A audit artifacts from the
-headless Slack status bundle, then runs the parser regressions, predeploy gate,
-Vitest suite, production build, and lint. The SQLite warehouse remains a separate
+headless Slack status bundle, then runs the parser regressions, static Phase 1
+predeploy gate, Vitest suite, production build, and lint. `set -o pipefail` prevents
+`tee` from masking a failed driver stage. The SQLite warehouse remains a separate
 Phase 2 cutover gate; Phase 1 does not replace the Studio's warehouse writer.
+Analytics Brain has no off-Studio live export mount yet, so Phase 1 verifies the
+committed authenticated same-batch snapshot without advancing its source timestamp;
+a portable live export root remains a Phase 2 completeness gate.
 
 ## Phases
 

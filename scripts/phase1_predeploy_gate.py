@@ -23,6 +23,7 @@ PHASE2A_AUDIT = APP_ROOT / "data" / "phase2a_audit.json"
 TLWB_PAGE_ADAPTERS = APP_ROOT / "src" / "data" / "tlwbPageAdapters.ts"
 EXEC_ADAPTERS = APP_ROOT / "src" / "data" / "executiveAdapters.ts"
 PHASE_SCRIPT = APP_ROOT / "scripts" / "phase1_freshness_spine.py"
+STATIC_ONLY = os.environ.get("TLWB_PHASE1_STATIC_ONLY") == "1"
 TZ = ZoneInfo("America/Denver")
 REQUIRED = ["teamdrecksel", "teamtony", "teamnick", "teamshaw", "teamwayne", "teamdent", "teamwyman", "teamvogel", "teammillar", "eventstats", "expo"]
 OPTIONAL = [
@@ -118,6 +119,20 @@ def assert_slack_coverage(rows: dict[str, sqlite3.Row]) -> None:
         status = rows[channel]["status"]
         if status not in {"not_in_channel", "ok_fresh", "ok_no_new_expected"}:
             fail(f"AC5 optional #{channel} has unexpected blocking status {status}")
+
+
+def assert_static_source_coverage(health: dict) -> None:
+    required = set(health.get("required_channels") or [])
+    missing = sorted(set(REQUIRED) - required)
+    if missing:
+        fail("AC5 required channels missing from static health artifact: " + ", ".join(missing))
+    red = [
+        f"{row.get('page')} / {row.get('section')}"
+        for row in health.get("rows") or []
+        if row.get("status") == "red"
+    ]
+    if red:
+        fail("AC5 static Phase 1 artifact contains red source rows: " + "; ".join(red))
 
 
 def market_from_me(text: str) -> str | None:
@@ -368,6 +383,9 @@ def assert_phase2a_audit() -> None:
     if not acceptance.get("stale_or_missing_sources_fail_closed"):
         fail("AC10 stale/missing sections do not fail closed with blockers")
 
+    if STATIC_ONLY:
+        return
+
     conn = sqlite3.connect(ARCHIVE_DB)
     normalized_events = conn.execute("select count(*) from normalized_events").fetchone()[0]
     normalized_metrics = conn.execute("select count(*) from normalized_metrics where source_record_ref like 'phase2a:%'").fetchone()[0]
@@ -430,17 +448,23 @@ def assert_no_false_current() -> None:
 def main() -> int:
     health = load_json(HEALTH)
     schedule = load_json(SCHEDULE)
-    rows = latest_check_rows()
     assert_coverage(health)
-    assert_slack_coverage(rows)
-    assert_me_current_finals()
+    if STATIC_ONLY:
+        assert_static_source_coverage(health)
+    else:
+        rows = latest_check_rows()
+        assert_slack_coverage(rows)
+        assert_me_current_finals()
     assert_metric_sanity()
     assert_active_preview_schedule_alignment(schedule)
     assert_no_false_current()
     assert_schedule(schedule)
     assert_phase2a_audit()
-    assert_resilience()
-    print("OK: TLWB KPI freshness + Phase 2A predeploy gates passed")
+    if not STATIC_ONLY:
+        assert_resilience()
+        print("OK: TLWB KPI freshness + Phase 2A predeploy gates passed")
+    else:
+        print("OK: TLWB KPI static Phase 1 gates passed; SQLite durability is deferred to Phase 2")
     return 0
 
 
