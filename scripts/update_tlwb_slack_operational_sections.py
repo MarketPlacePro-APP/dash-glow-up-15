@@ -610,6 +610,9 @@ def parse_expo(messages: list[SlackMessage]) -> tuple[dict[str, int | str | None
 
 def market_from_preview(body: str) -> str | None:
     patterns = [
+        # ``parse_messages`` normalizes Slack mrkdwn before this parser runs, so
+        # the same heading normally arrives as ``White Plains Saturday ...``.
+        r"^([A-Za-z][A-Za-z .,/'-]+?)\s+(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b",
         # Several preview teams post plain Slack-mrkdwn headings with no WK
         # prefix or pipe: ``*White Plains* *Saturday 8/29/26* ...``.
         r"^\*+([A-Za-z][A-Za-z .,/'-]+?)\*+\s+\*+(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b",
