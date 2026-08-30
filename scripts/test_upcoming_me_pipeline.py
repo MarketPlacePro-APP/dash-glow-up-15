@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-SCRIPT = Path("/Users/seanwilliams/.openclaw/workspace-main/scripts/update_tlwb_slack_operational_sections.py")
+SCRIPT = Path(__file__).with_name("update_tlwb_slack_operational_sections.py")
 spec = importlib.util.spec_from_file_location("tlwb_slack_operational", SCRIPT)
 assert spec and spec.loader
 module = importlib.util.module_from_spec(spec)

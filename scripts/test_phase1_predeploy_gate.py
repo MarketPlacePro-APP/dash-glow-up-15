@@ -42,6 +42,20 @@ def schedule(times: str = "10:00AM & 2:00PM") -> dict:
 
 
 class ActivePreviewReportingWindowTests(unittest.TestCase):
+    def test_static_phase1_coverage_requires_all_channels_and_no_red_rows(self) -> None:
+        healthy = {
+            "required_channels": list(module.REQUIRED),
+            "rows": [{"page": "Data QA", "section": "probe", "status": "green"}],
+        }
+        module.assert_static_source_coverage(healthy)
+        with self.assertRaises(SystemExit):
+            module.assert_static_source_coverage({"required_channels": [], "rows": []})
+        with self.assertRaises(SystemExit):
+            module.assert_static_source_coverage({
+                "required_channels": list(module.REQUIRED),
+                "rows": [{"page": "Preview", "section": "Current", "status": "red"}],
+            })
+
     def test_pending_rows_do_not_bleed_into_following_active_row(self) -> None:
         source = """export const activePreviewMarkets: ActivePreviewMarket[] = [
   {
