@@ -640,6 +640,19 @@ def market_from_preview(body: str) -> str | None:
             market = match.group(1).strip()
             if re.fullmatch(r"WK\.?\s*\d+", market, re.I):
                 continue
+            # Some result headings insert the venue between the city/state and
+            # weekday, for example ``Atlanta, Georgia Courtyard Atlanta Decatur
+            # Downtown/Emory Saturday``. The broad WK heading patterns must
+            # accept those posts, but the venue must not become part of the
+            # market key or the result will be orphaned from its headcount.
+            city_state = re.match(
+                r"^(.+?,\s*(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IND|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|"
+                r"Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New Hampshire|New Jersey|New Mexico|New York|North Carolina|North Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode Island|South Carolina|South Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West Virginia|Wisconsin|Wyoming|District of Columbia))\b",
+                market,
+                re.I,
+            )
+            if city_state:
+                market = city_state.group(1)
             market = re.sub(r"\s+Final\s+Numbers\s*$", "", market, flags=re.I)
             market = re.sub(r"\bSaint\b", "St.", market)
             return market.replace("Meyers", "Myers")
@@ -845,10 +858,14 @@ def preview_sold_sources(messages: list[SlackMessage]) -> dict[str, dict[str, in
 
 
 def session_key(body: str) -> tuple[int, int] | None:
-    match = re.search(r"Day\s+(\d+)\s+Session\s+(\d+)", body, re.I)
-    if not match:
-        return None
-    return int(match.group(1)), int(match.group(2))
+    for pattern in (
+        r"\bDay\s+(\d+)\s+Session\s+(\d+)\b",
+        r"\bD\s*(\d+)\s*S\s*(\d+)\b",
+    ):
+        match = re.search(pattern, body, re.I)
+        if match:
+            return int(match.group(1)), int(match.group(2))
+    return None
 
 
 def preview_session_speaker(

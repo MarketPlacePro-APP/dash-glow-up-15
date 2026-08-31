@@ -56,6 +56,40 @@ class PreviewFinalSelectionTests(unittest.TestCase):
         self.assertIn("sessionsCompleted: 2", rows[0])
         self.assertIn("routeDeals: 25", rows[0])
 
+    def test_atlanta_venue_and_abbreviated_session_reconcile_live_route(self):
+        # Live #teamwayne posts from 2026-08-29/30 use three independent
+        # copy/paste variants: D1S1 shorthand, a venue between city/state and
+        # weekday, and duplicate/wrong Day/Session labels. Market parsing plus
+        # chronological headcount/result binding must retain all four sessions.
+        messages = [
+            msg("teamwayne", "2026-08-29T14:31:48.905959+00:00", "WK 36 | Atlanta, Georgia Saturday, 08/29/2026 Courtyard Atlanta Decatur Downtown/Emory Day 1 Session 1 30-Minute Headcount Total Reg: 287 Total Count: 15 Show Factor: 5.2%"),
+            msg("teamwayne", "2026-08-29T15:51:34.740019+00:00", "WK 36 | Atlanta, Georgia Courtyard Atlanta Decatur Downtown/Emory Saturday, 08/29/2026 RESULTS | D1S1 Session Deals: 9 Session Conversion:60% Session Futures: 0 Master Class: (Nick): 9 Total Route Conversion: 60%"),
+            msg("teamwayne", "2026-08-29T18:31:08.863059+00:00", "WK 36 | Atlanta, Georgia Saturday, 08/29/2026 Courtyard Atlanta Decatur Downtown/Emory Day 1 Session 1 30-Minute Headcount Total Reg: 257 Total Count: 25 Show Factor: 9.7%"),
+            msg("teamwayne", "2026-08-29T19:59:14.022109+00:00", "WK 36 | Atlanta, Georgia Courtyard Atlanta Decatur Downtown/Emory Saturday, 08/29/2026 Day 5 Session 2 RESULTS Session Deals: 11 Session Conversion: 44% Session Futures: 2 Master Class: (Nick): 18 Total Route Conversion: 50.0%"),
+            msg("teamwayne", "2026-08-30T14:30:29.630769+00:00", "WK 36 | Atlanta, Georgia Sunday, 08/30/2026 Sonesta Gwinnett Place Atlanta Day 2 Session 1 30-Minute Headcount Total Reg: 129 Total Count: 27 Show Factor: 20.9%"),
+            msg("teamwayne", "2026-08-30T15:57:40.963849+00:00", "WK 36 | Atlanta, Georgia Saturday, 08/29/2026 Sonesta Gwinnett Place Atlanta Day 2 Session 1 RESULTS Session Deals: 7 Session Conversion: 26% Session Futures: 0 Master Class: (Nick): 25 Total Route Conversion: 40.3%"),
+            msg("teamwayne", "2026-08-30T18:30:22.233489+00:00", "WK 36 | Atlanta, Georgia Sunday, 08/30/2026 Sonesta Gwinnett Place Atlanta Day 2 Session 1 30-Minute Headcount Total Reg: 125 Total Count: 9 Show Factor: 7.2%"),
+            msg("teamwayne", "2026-08-30T19:43:37.157029+00:00", "WK 36 | Atlanta, Georgia Saturday, 08/29/2026 Sonesta Gwinnett Place Atlanta Day 2 Session 2 RESULTS Session Deals: 5 Session Conversion: 56% Session Futures: 0 Master Class: (Nick): 30 Total Route Conversion: 42.1%"),
+        ]
+
+        self.assertEqual(module.session_key(messages[1].body), (1, 1))
+        self.assertEqual(module.market_from_preview(messages[1].body), "Atlanta, Georgia")
+
+        rows, session_rows, _latest_post, _latest_date = module.parse_active_preview_rows(messages, [])
+        rendered = "\n".join(rows)
+        sessions = "\n".join(session_rows)
+
+        self.assertEqual(len(rows), 1)
+        self.assertIn("market: 'Atlanta, Georgia'", rendered)
+        self.assertIn("sessionsCompleted: 4", rendered)
+        self.assertIn("registered: 798", rendered)
+        self.assertIn("attendedCutoff: 76", rendered)
+        self.assertIn("sales: 30", rendered)
+        self.assertIn("routeDeals: 32", rendered)
+        self.assertIn("futures: 2", rendered)
+        self.assertIn("salesRate: 42.1 / 100", rendered)
+        self.assertEqual(sessions.count("market: 'Atlanta, Georgia'"), 4)
+
     def test_flattened_weekday_suffix_joins_saint_louis_session_to_final(self):
         self.assertEqual(
             module.active_preview_market_display("Atlanta, Georgia Saturday"),
