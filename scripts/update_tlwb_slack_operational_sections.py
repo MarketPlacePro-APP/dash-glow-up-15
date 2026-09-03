@@ -1074,8 +1074,10 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
     active_sessions = [
         row for row in sessions.values()
         # Live cards must reflect the current route window. A missing final report
-        # must not leave an old market marked LIVE indefinitely.
-        if (latest_dt - datetime.fromisoformat(str(row["date"]))).days <= 3
+        # must not leave an old market marked LIVE indefinitely. Preview routes
+        # routinely run Saturday through Wednesday (4 calendar days), so a 3-day
+        # cutoff drops Day 1 and falsely fails cumulative Master Class vs deals.
+        if (latest_dt - datetime.fromisoformat(str(row["date"]))).days <= 7
         and int(row.get("registered") or 0) > 0
         and int(row.get("attendance") or 0) >= 0
     ]

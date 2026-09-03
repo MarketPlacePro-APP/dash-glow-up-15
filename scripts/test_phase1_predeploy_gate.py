@@ -110,6 +110,94 @@ class ActivePreviewReportingWindowTests(unittest.TestCase):
             ["teamwayne", "teammillar"],
         )
 
+    def test_last_day_finals_cover_active_schedule_without_live_rows(self) -> None:
+        now = datetime(2026, 9, 2, 20, 5, tzinfo=TZ)
+        schedule_data = {
+            "records": [
+                {
+                    "eventType": "front_end_preview",
+                    "state": "active",
+                    "startDate": "2026-09-02",
+                    "market": "Atlanta",
+                    "times": "12:30PM & 7:00PM",
+                },
+                {
+                    "eventType": "front_end_preview",
+                    "state": "active",
+                    "startDate": "2026-09-02",
+                    "market": "White Plains",
+                    "times": "12:30PM (Only)",
+                },
+            ],
+            "route_blocks": [
+                {
+                    "id": "route-atlanta-emory-wayne-gray-2026-08-29-2026-09-02-1",
+                    "route": "EMORY",
+                    "status": "active",
+                    "market": "Atlanta",
+                    "sourceRole": "schedule_route_block",
+                    "startDate": "2026-08-29",
+                    "endDate": "2026-09-02",
+                }
+            ],
+        }
+        adapter = """export const activePreviewMarkets: ActivePreviewMarket[] = [
+  {
+    market: 'Baltimore',
+    team: 'Team Wayne/Gray / #eventstats',
+    sessionsCompleted: null,
+    totalSessions: null,
+    sourceState: 'pending_source',
+    startDate: '2026-09-09'
+  },
+  {
+    market: 'Atlanta, Georgia',
+    team: 'Team Wayne · Speaker Jay / #teamwayne',
+    sessionsCompleted: null,
+    totalSessions: null,
+    sourceState: 'final_route_totals',
+    startDate: '2026-08-29',
+    latestSessionDate: '2026-09-02'
+  },
+  {
+    market: 'White Plains',
+    team: 'Team Vogel · Speaker Megan / #teamvogel',
+    sessionsCompleted: null,
+    totalSessions: null,
+    sourceState: 'final_route_totals',
+    startDate: '2026-08-29',
+    latestSessionDate: '2026-09-02'
+  }
+];"""
+        module.assert_active_preview_schedule_alignment(schedule_data, now, adapter)
+
+    def test_active_schedule_without_finals_still_requires_live_rows(self) -> None:
+        now = datetime(2026, 9, 2, 20, 5, tzinfo=TZ)
+        schedule_data = {
+            "records": [
+                {
+                    "eventType": "front_end_preview",
+                    "state": "active",
+                    "startDate": "2026-09-02",
+                    "market": "Atlanta",
+                    "times": "12:30PM & 7:00PM",
+                }
+            ],
+            "route_blocks": [],
+        }
+        adapter = """export const activePreviewMarkets: ActivePreviewMarket[] = [
+  {
+    market: 'Baltimore',
+    team: 'Team Wayne/Gray / #eventstats',
+    sessionsCompleted: null,
+    totalSessions: null,
+    sourceState: 'pending_source',
+    startDate: '2026-09-09'
+  }
+];"""
+        with self.assertRaises(SystemExit):
+            module.assert_active_preview_schedule_alignment(schedule_data, now, adapter)
+
 
 if __name__ == "__main__":
     unittest.main()
