@@ -299,22 +299,94 @@ def active_preview_adapter_rows(source: str) -> list[tuple[str, str, str, str, s
     return rows
 
 
-def assert_active_preview_schedule_alignment(schedule: dict, now: datetime | None = None) -> None:
-    source = EXEC_ADAPTERS.read_text()
+def normalize_preview_market_key(value: str) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip(" ,").lower()
+    return re.sub(
+        r",\s*(?:al|ak|az|ar|ca|co|ct|de|fl|ga|hi|id|il|in|ia|ks|ky|la|me|md|ma|mi|mn|ms|mo|mt|ne|nv|nh|nj|nm|ny|nc|nd|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|vt|va|wa|wv|wi|wy|dc|georgia|new york)$",
+        "",
+        text,
+    )
+
+
+def parse_preview_final_adapter_rows(source: str) -> list[dict[str, str]]:
+    """Return final-route cards so last-day schedule rows can be treated as closed."""
+    section_match = re.search(
+        r"export const activePreviewMarkets: ActivePreviewMarket\[\] = \[(.*?)\n\];",
+        source,
+        re.S,
+    )
+    if not section_match:
+        return []
+    rows: list[dict[str, str]] = []
+    for card_match in re.finditer(r"^  \{(.*?)^  \},?$", section_match.group(1), re.S | re.M):
+        card = card_match.group(1)
+        if not re.search(r"sourceState:\s*'final_route_totals'", card):
+            continue
+        market = re.search(r"market:\s*'([^']+)'", card)
+        start = re.search(r"startDate:\s*'([^']+)'", card)
+        latest = re.search(r"latestSessionDate:\s*'([^']+)'", card)
+        if not market or not start:
+            continue
+        rows.append(
+            {
+                "market": market.group(1),
+                "startDate": start.group(1),
+                "latestSessionDate": latest.group(1) if latest else start.group(1),
+            }
+        )
+    return rows
+
+
+def final_covers_active_schedule_row(final: dict[str, str], row: dict) -> bool:
+    if normalize_preview_market_key(final.get("market", "")) != normalize_preview_market_key(str(row.get("market") or "")):
+        return False
+    try:
+        scheduled = datetime.fromisoformat(str(row.get("startDate"))).date()
+        start = datetime.fromisoformat(final["startDate"]).date()
+        latest = datetime.fromisoformat(final.get("latestSessionDate") or final["startDate"]).date()
+    except (TypeError, ValueError):
+        return False
+    return start <= scheduled <= latest
+
+
+def uncovered_active_preview_requires_live_rows(schedule: dict, source: str, now: datetime | None = None) -> bool:
+    """Require live Slack cards only for schedule-active markets that are not already finalized."""
+    finals = parse_preview_final_adapter_rows(source)
+    active_records = [
+        row
+        for row in schedule.get("records") or []
+        if row.get("eventType") == "front_end_preview" and row.get("state") == "active"
+    ]
+    uncovered_records = [
+        row
+        for row in active_records
+        if not any(final_covers_active_schedule_row(final, row) for final in finals)
+    ]
+    if uncovered_records and active_preview_reporting_expected({"records": uncovered_records, "route_blocks": []}, now):
+        return True
+    for block in schedule.get("route_blocks") or []:
+        if block.get("status") != "active":
+            continue
+        blob = " ".join(str(block.get(key) or "") for key in ("route", "id", "sourceRole"))
+        looks_preview = "preview" in blob.lower() or any(
+            normalize_preview_market_key(str(row.get("market") or ""))
+            == normalize_preview_market_key(str(block.get("market") or ""))
+            for row in active_records
+        )
+        if not looks_preview:
+            continue
+        fake_row = {"market": block.get("market"), "startDate": block.get("endDate") or block.get("startDate")}
+        if not any(final_covers_active_schedule_row(final, fake_row) for final in finals):
+            return True
+    return False
+
+
+def assert_active_preview_schedule_alignment(schedule: dict, now: datetime | None = None, source: str | None = None) -> None:
+    source = EXEC_ADAPTERS.read_text() if source is None else source
     active_rows = active_preview_adapter_rows(source)
     records = schedule.get("records") or []
-    active_preview_route_blocks = [
-        block for block in schedule.get("route_blocks") or []
-        if block.get("status") == "active"
-        and (
-            "preview" in str(block.get("route") or "").lower()
-            or "preview" in str(block.get("id") or "").lower()
-            or "preview" in str(block.get("sourceRole") or "").lower()
-        )
-    ]
-    has_active_preview_schedule = active_preview_reporting_expected(schedule, now) or bool(active_preview_route_blocks)
     if not active_rows:
-        if has_active_preview_schedule:
+        if uncovered_active_preview_requires_live_rows(schedule, source, now):
             fail("AC11 active preview schedule exists but no active preview rows found in executive adapter")
         return
     for market, _team, completed_raw, total_raw, start_date_raw, latest_session_date_raw in active_rows:

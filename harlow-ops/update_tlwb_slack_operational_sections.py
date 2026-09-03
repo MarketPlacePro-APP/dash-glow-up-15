@@ -1036,7 +1036,7 @@ def parse_active_preview_rows(messages: list[SlackMessage], schedule_records: li
         row for row in sessions.values()
         # Live cards must reflect the current route window. A missing final report
         # must not leave an old market marked LIVE indefinitely.
-        if (latest_dt - datetime.fromisoformat(str(row["date"]))).days <= 3
+        if (latest_dt - datetime.fromisoformat(str(row["date"]))).days <= 7
         and int(row.get("registered") or 0) > 0
         and int(row.get("attendance") or 0) >= 0
     ]
