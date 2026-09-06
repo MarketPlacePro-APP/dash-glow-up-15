@@ -33,11 +33,27 @@ def slack_get(method: str, token: str, params: dict) -> dict:
         return json.loads(response.read())
 
 
+# This is ingestion lineage, not a current team/speaker assignment. Channel
+# teamdent was renamed teamwollaston; preserve historical source keys by ID.
+KNOWN_CHANNEL_IDENTITIES = {"teamdent": "C09Q2B8SNTX"}
+
+
+def apply_known_channel_identities(channels: dict[str, str]) -> dict[str, str]:
+    result = dict(channels)
+    visible_ids = set(channels.values())
+    for legacy_name, channel_id in KNOWN_CHANNEL_IDENTITIES.items():
+        # A reused name must never silently point history at a different source.
+        result.pop(legacy_name, None)
+        if channel_id in visible_ids:
+            result[legacy_name] = channel_id
+    return result
+
+
 def resolve_channel_map(token: str) -> dict[str, str]:
     result: dict[str, str] = {}
     cursor = ""
     while True:
-        params = {"limit": 1000, "types": "public_channel,private_channel"}
+        params = {"limit": 1000, "types": "public_channel,private_channel", "exclude_archived": "true"}
         if cursor:
             params["cursor"] = cursor
         data = slack_get("conversations.list", token, params)
@@ -50,7 +66,7 @@ def resolve_channel_map(token: str) -> dict[str, str]:
                 result[str(name)] = str(channel_id)
         cursor = data.get("response_metadata", {}).get("next_cursor", "")
         if not cursor:
-            return result
+            return apply_known_channel_identities(result)
 
 
 def channel_records(name: str, channel_id: str | None, token: str, limit: int) -> tuple[bool, list[str], str, str | None]:

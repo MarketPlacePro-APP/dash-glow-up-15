@@ -159,6 +159,7 @@ log "Installing dependencies"
 npm ci
 log "Running parser and business-truth gates"
 python3 scripts/validate_tlwb_market_roster.py --src "$SRC" --slack "$SLACK_SNAPSHOT"
+python3 ci/test_slack_channel_history.py
 python3 scripts/test_marketing_history_coverage.py
 python3 scripts/test_marketing_preview_no_drop.py
 python3 scripts/test_workshop_schedule_parser.py
